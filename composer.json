@@ -1,0 +1,21 @@
+{
+    "name": "alex-scott/php-class-renamer",
+    "description": "Allows to transform PHP files from PHP 5.2 to 5.3 namespaced class notations",
+    "license": "GPL",
+    "authors": [
+        {
+            "name": "Alex Scott",
+            "email": "alex@cgi-central.net"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {},
+    "require-dev" : {
+        "mikey179/vfsStream": "1.4.0"
+    },
+    "autoload": {
+	"psr-4" : {
+		"PhpClassRenamer\\" : "lib/"
+	}
+    }
+}
