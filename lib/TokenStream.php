@@ -145,7 +145,7 @@ class TokenStream
     {
         for ($i=$start;$i<=$end;$i++)
             $toMerge[] = $this->tokens[$i];
-        array_splice($this->tokens, $start+1, $end-$start+1, 
+        array_splice($this->tokens, $start, $end-$start+1, 
                 array(Token::merge($newType, $toMerge))
         );
     }
