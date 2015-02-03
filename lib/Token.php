@@ -8,6 +8,25 @@ class Token implements \ArrayAccess
     protected $content;
     protected $line;
     
+    static private $constants = array();
+    
+    const T_NONE = 10001;
+    const T_STATIC_CALL = 10003;
+    const T_CLASS_NAME = 10004;
+    const T_EXTENDS_NAME = 10005;
+    const T_CLASS_NEW = 10006;
+    const T_USE_NS = 10008;
+    const T_USE_AS = 10009;
+    const T_NS_NAME = 10010;
+    
+    const T_LEFT_BRACKET = 10100; // (
+    const T_RIGHT_BRACKET = 10101; // )
+    const T_LEFT_BRACE = 10102; // {
+    const T_RIGHT_BRACE = 10103; // }
+    const T_SEMICOLON = 10104; // ;
+    const T_COMMA = 10105; // ,
+    const T_FUNCTION_ARG = 10106;
+    
     function __construct($typeOrArr, $content = null, $line = null)
     {
         if (is_array($typeOrArr) && $content === null && $line === null)
@@ -19,6 +38,7 @@ class Token implements \ArrayAccess
         $this->line = $line;
     }
     function getType() { return $this->type; }
+    function getName() { return self::tokenName($this->type); }
     function getContent() { return $this->content; }
     function getLine() { return $this->line; }
     function setType($type) { $this->type = $type; }
@@ -79,6 +99,22 @@ class Token implements \ArrayAccess
             $line = $t->getLine();
         }
         return new Token($newType, $content, $line);
+    }
+    
+    static function tokenName($type)
+    {
+        if (empty(self::$constants))
+        {
+            $r = new \ReflectionClass(__CLASS__);
+            foreach ($r->getConstants() as $k => $v)
+            {
+                self::$constants[$v] = $k;
+            }
+        }
+        if ($type > 10000)
+            return self::$constants[$type];
+        else
+            return token_name($type) == 'UNKNOWN' ? $type : token_name($type);
     }
 }
 

@@ -24,9 +24,9 @@ class MoveClassToNs extends AbstractAction
         $token = $tokens[$i];
         array_splice($tokens, $i+1, 0, array(
             new Token(T_NAMESPACE, 'namespace', $token->getLine()),
-            new Token(TokenStream::T_NONE, " ", $token->getLine()),
-            new Token(TokenStream::T_NS_NAME, $ns, $token->getLine()),
-            new Token(TokenStream::T_NONE, ";\n", $token->getLine()),
+            new Token(Token::T_NONE, " ", $token->getLine()),
+            new Token(Token::T_NS_NAME, $ns, $token->getLine()),
+            new Token(Token::T_NONE, ";\n", $token->getLine()),
         ));
         $this->stream->setTokens($tokens);
         $this->currentNs = $ns;
@@ -36,7 +36,7 @@ class MoveClassToNs extends AbstractAction
     {
         $this->stream = $stream;
         
-        $it = $this->stream->findNextToken(TokenStream::T_CLASS_NAME);
+        $it = $this->stream->findNextToken(Token::T_CLASS_NAME);
         if (!$it) return; // no class defs found
         $firstClass = $this->stream->getTokenByNumber($it)->getContent();
         list($ns, $cl) = $this->parseNsAndClass($firstClass);
@@ -47,7 +47,7 @@ class MoveClassToNs extends AbstractAction
         $it += 4;
         /// found following classes
         $l = 0;
-        while ($it = $this->stream->findNextToken(TokenStream::T_CLASS_NAME, $it+4)) {
+        while ($it = $this->stream->findNextToken(Token::T_CLASS_NAME, $it+4)) {
             $class = $this->stream->getTokenByNumber($it)->getContent();
             list($ns, $cl) = $this->parseNsAndClass($class);
             $this->insertNamespace($it - 3, $ns);
@@ -58,13 +58,13 @@ class MoveClassToNs extends AbstractAction
         $it = 0;
         $currentNs = null;
         while ($it = $this->stream->findNextToken(array(
-                TokenStream::T_CLASS_ARG, TokenStream::T_CLASS_NAME, 
-                TokenStream::T_CLASS_NEW, TokenStream::T_EXTENDS_NAME,
-                TokenStream::T_FUNCTION_ARG, TokenStream::T_NS_NAME,
+                Token::T_CLASS_NAME, 
+                Token::T_CLASS_NEW, Token::T_EXTENDS_NAME,
+                Token::T_FUNCTION_ARG, Token::T_NS_NAME,
                 ), $it))
         {
             $token = $this->stream->getTokenByNumber($it);
-            if ($token->is(TokenStream::T_NS_NAME))
+            if ($token->is(Token::T_NS_NAME))
             {
                 $currentNs = $token->getContent();
             } else {

@@ -5,7 +5,16 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 class Test_FileProcessor extends \PHPUnit_Framework_TestCase
 {
-    function testOk()
+    
+    function testParseFunctionArgs()
+    {
+        $source = file_get_contents(__DIR__ . '/input-1.phps');
+        $ts = new TokenStream($source);
+        //file_put_contents(__DIR__ . '/output-1.txt', $ts->dumpTokens());
+        $this->assertEquals(file_get_contents(__DIR__ . '/output-1.txt'), $ts->dumpTokens());
+    }
+    
+    function xtestOk()
     {
         $changer = new ClassNameChanger();
         $changer->addFixed('Am_Record', 'Am_Orm_Record');

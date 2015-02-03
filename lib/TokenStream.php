@@ -9,37 +9,14 @@ class TokenStream
     protected $tokensBefore = array();
     protected $state = null;
     protected $output = '';
-
+    protected $insideFunctionArgs = false;
     protected $constants = array();
     
     function __construct($source)
     {
-        $r = new \ReflectionClass($this);
-        foreach ($r->getConstants() as $k => $v)
-        {
-            $this->constants[$v] = $k;
-        }
         $this->source = $source;
         $this->tokenize();
     }
-    
-    const T_NONE = 10001;
-    const T_STATIC_CALL = 10003;
-    const T_CLASS_NAME = 10004;
-    const T_EXTENDS_NAME = 10005;
-    const T_CLASS_NEW = 10006;
-    const T_CLASS_ARG = 10007;
-    const T_USE_NS = 10008;
-    const T_USE_AS = 10009;
-    const T_NS_NAME = 10010;
-    
-    const T_LEFT_BRACKET = 10100; // (
-    const T_RIGHT_BRACKET = 10101; // )
-    const T_LEFT_BRACE = 10102; // {
-    const T_RIGHT_BRACE = 10103; // }
-    const T_SEMICOLON = 10104; // ;
-    const T_COMMA = 10105; // ,
-    const T_FUNCTION_ARG = 10106;
     
     // todo : docblocks? method to rename known class names 
     
@@ -51,16 +28,17 @@ class TokenStream
             if (is_string($t)) {
                 switch ($t)
                 {
-                    case '(' : $tt = self::T_LEFT_BRACKET; break;
-                    case ')' : $tt = self::T_RIGHT_BRACKET; break;
-                    case '{' : $tt = self::T_LEFT_BRACE; break;
-                    case '}' : $tt = self::T_RIGHT_BRACE; break;
-                    case ';' : $tt = self::T_SEMICOLON; break;
-                    case ',' : $tt = self::T_COMMA; break;
+                    case '(' : $tt = Token::T_LEFT_BRACKET; break;
+                    case ')' : $tt = Token::T_RIGHT_BRACKET; break;
+                    case '{' : $tt = Token::T_LEFT_BRACE; break;
+                    case '}' : $tt = Token::T_RIGHT_BRACE; break;
+                    case ';' : $tt = Token::T_SEMICOLON; break;
+                    case ',' : $tt = Token::T_COMMA; break;
                     default: $tt = 0;
                 }
                 $t = array($tt, $t, $line);
-            }
+            } else
+                $line = $t[2];
             //echo token_name($type) . "=$content=$line\n";
             $this->addToken(new Token($t));
         }
@@ -70,19 +48,17 @@ class TokenStream
         {
             switch ($t->getType())
             {
-                case self::T_CLASS_NAME:
-                case self::T_EXTENDS_NAME:
-                case self::T_STATIC_CALL:
-                case self::T_CLASS_NEW:
-                case self::T_CLASS_ARG:
-                case self::T_USE_NS:
-                case self::T_USE_AS:
-                case self::T_FUNCTION_ARG:
-                case self::T_NS_NAME:
-                    echo $this->constants[$t->getType()] . "=" . $t->getContent() . "=\n";
+                case Token::T_CLASS_NAME:
+                case Token::T_EXTENDS_NAME:
+                case Token::T_STATIC_CALL:
+                case Token::T_CLASS_NEW:
+                case Token::T_USE_NS:
+                case Token::T_USE_AS:
+                case Token::T_FUNCTION_ARG:
+                case Token::T_NS_NAME:
+                    echo $t->getName() . "=" . $t->getContent() . "=\n";
             }
         }
-            
     }
     
     protected function parseDoubleColon($lastToken)
@@ -97,7 +73,7 @@ class TokenStream
             if ($starto != $start)
                 echo "Variable static call [$contento] at line $lineo\n";
             elseif ($content != 'self')
-                $this->replaceTokensToNewType($start, $end, self::T_STATIC_CALL);
+                $this->replaceTokensToNewType($start, $end, Token::T_STATIC_CALL);
         }
     }
     
@@ -106,21 +82,26 @@ class TokenStream
      * return array($start, $end) or array(null, null) if no tokens found
      * $end includes last matching element
      */
-    protected function findTokensBack(array $types)
+    protected function findTokensBack(array $types, $startI = null)
     {
         $start = $end = $line = null;
         $content = '';
         do {
             $k = key($this->tokens);
-            $token = current($this->tokens);
-            if ($token === false) break; // end of array
-            if (!$token->is($types)) break;
-            if ($end === null) $end = $start = $k;
-            else $start = $k;
-            if ($end) {
-                $content .= $token->getContent();
-                $line = $token->getLine();
-            }
+            if (($startI !== null) && ($k == $startI))
+                $startI = null;
+            if ($startI === null)
+            {
+                $token = current($this->tokens);
+                if ($token === false) break; // end of array
+                if (!$token->is($types)) break;
+                if ($end === null) $end = $start = $k;
+                else $start = $k;
+                if ($end) {
+                    $content .= $token->getContent();
+                    $line = $token->getLine();
+                }
+            } 
             prev($this->tokens);
         } while (key($this->tokens));
         return array($start, $end, $content, $line);
@@ -192,22 +173,22 @@ class TokenStream
             case T_DOUBLE_COLON:
                 $this->parseDoubleColon($lastToken);
                 break;
-            case self::T_COMMA:
-                if ($this->state == self::T_FUNCTION_ARG) {
-                    $this->setState (self::T_FUNCTION_ARG, $content, $line);
+            case Token::T_COMMA:
+                if ($this->insideFunctionArgs) {
+                    $this->setState (Token::T_FUNCTION_ARG, $content, $line);
                 };
                 break;
-            case self::T_SEMICOLON:
+            case Token::T_SEMICOLON:
                 if ($this->state == T_NAMESPACE)
                 {
                     $this->setState(0, $content, $line);
                     break;
                 }
-            case self::T_LEFT_BRACKET:
+            case Token::T_LEFT_BRACKET:
                 if ($this->state == T_NEW)
                 {
                     if ($lastToken->getType() == T_STRING && trim($lastToken->getContent()) == trim($this->outputBefore)) {
-                        $lastToken->setType(self::T_CLASS_NEW);
+                        $lastToken->setType(Token::T_CLASS_NEW);
                     } else {
                         echo "NEW class creation for variable at $line [".$this->outputBefore."]\n";
                     }
@@ -215,28 +196,30 @@ class TokenStream
                 } elseif ($this->state == T_USE) {
                     $this->setState(0, $content, $line);
                 } elseif ($this->state == T_FUNCTION) {
-                    $this->setState(self::T_FUNCTION_ARG, $content, $line);
+                    $this->setState(Token::T_FUNCTION_ARG, $content, $line);
+                    $this->insideFunctionArgs = true;
                 }
                 break;
-            case self::T_RIGHT_BRACKET:
-                if ($this->state == self::T_FUNCTION_ARG)
+            case Token::T_RIGHT_BRACKET:
+                $this->insideFunctionArgs = false;
+                if ($this->state == Token::T_FUNCTION_ARG)
                     $this->setState(0, $content, $line);
                 break;
             case T_STRING:
                 if ($this->state == T_CLASS)
                 {
-                    $type = self::T_CLASS_NAME;
+                    $type = Token::T_CLASS_NAME;
                     $this->setState(0, $content, $line);
                 } elseif ($this->state == T_EXTENDS) {
-                    $type = self::T_EXTENDS_NAME;
+                    $type = Token::T_EXTENDS_NAME;
                     $this->setState(0, $content, $line);
                 } elseif ($this->state == T_AS) {
-                    $type = self::T_USE_AS;
+                    $type = Token::T_USE_AS;
                     $this->setState(0, $content, $line);
                 }
                 break;
             case T_AS:
-                if (!$lastToken->is(self::T_USE_AS) && $this->state != T_USE)
+                if (!$lastToken->is(Token::T_USE_AS) && $this->state != T_USE)
                     break;
             case T_CLASS:
             case T_EXTENDS:
@@ -256,10 +239,7 @@ class TokenStream
     {
         if ($this->state)
         {
-            if ($this->state > 10000)
-                $m = $this->constants[$this->state];
-            else
-                $m = token_name($this->state);
+            $m = Token::tokenName($this->state);
             if (method_exists($this, 'end' . $m))
                 $this->{'end'. $m}($type, $content, $line);
             //else 
@@ -290,27 +270,15 @@ class TokenStream
     
     protected function endT_FUNCTION_ARG($type, $content, $line)
     {
-        reset($this->tokensBefore);
-        $content = ''; $start = null;
-        foreach ($this->tokensBefore as $k => $tok)
-        {
-            if (!$start && $tok->is(T_VARIABLE)) return; // no classname here!
-            // skip only whitespace and ( else failure
-            if (!$start && $tok->is(T_STRING, T_NS_SEPARATOR))
-            {
-                $start = $end = $k;
-                $content .= $tok->getContent();
-                continue;
-            } elseif ($start && $tok->is(T_STRING, T_NS_SEPARATOR)) {
-                break;
-            } 
-            if ($start) {
-                $end = $k;
-                $content .= $tok->getContent();
-            }
-        }
+        list($start, $end, $content, $line) = $this->findTokensBack([T_VARIABLE, T_WHITESPACE]);
         if (!$start) return;
-        $this->replaceTokensToNewType($start, $end, self::T_FUNCTION_ARG);
+        list($start, $end, $content, $line) = $this->findTokensBack([T_STRING, T_NS_SEPARATOR], $start-1);
+        if ($content == 'array') return;
+        if (!$content) return;
+        echo "$start=$end=$content\n";
+        print_r($this->tokens);
+        $this->replaceTokensToNewType($start, $end, Token::T_FUNCTION_ARG);
+        print_r($this->tokens);
     }
     
     protected function endT_NAMESPACE($type, $content, $line)
@@ -336,7 +304,7 @@ class TokenStream
         if (!$start) return;
         //
         array_splice($this->tokens, $start, $end-$start, 
-                array(new Token(self::T_NS_NAME, $content, $tok[2])));
+                array(new Token(Token::T_NS_NAME, $content, $tok[2])));
         
     }
     
@@ -355,6 +323,17 @@ class TokenStream
         $out = '';
         foreach ($this->tokens as $token)
             $out .= $token->getContent();
+        return $out;
+    }
+    
+    public function dumpTokens()
+    {
+        $out = "";
+        foreach ($this->tokens as $t)
+        {
+            $out .= sprintf("%d:%s=%s=\n", 
+               $t->getLine(), $t->getName(), str_replace("\n", "\\n", $t->getContent()));
+        }
         return $out;
     }
 }
