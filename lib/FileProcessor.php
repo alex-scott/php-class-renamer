@@ -14,21 +14,24 @@ class FileProcessor
     
     function processFile($inputFile, $outFile)
     {
-        $stream = new TokenStream(file_get_contents($inputFile));
+        $out = $this->process(file_get_contents($inputFile), $inputFile, $outFile);
         $dir = dirname($outFile);
         if (!is_dir($dir))
             mkdir($dir);
-        
+        file_put_contents($outFile, $out);
+        return $this;
+    }
+    
+    function process($inputSource, $filename, $outFile)
+    {
+        $stream = new TokenStream($inputSource);
         foreach ($this->actions as $pass => $actions)
         {
             foreach ($actions as $action)
             {
-                $action->process($stream, $inputFile, $outFile, $pass);
+                $action->process($stream, $filename, $outFile, $pass);
             }
         }
-        
-        file_put_contents($outFile, $stream->getFileContent());
-        
-        return $this;
+        return $stream->getFileContent();
     }
 }

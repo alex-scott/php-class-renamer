@@ -126,6 +126,41 @@ class TokenStream
         return array($start, $end, $content, $line);
     }
     
+    /**
+     * 
+     * @param int|array $types
+     * @param int $start
+     * @return int
+     */
+    public function findNextToken($types, $start=0)
+    {
+        $it = new \ArrayIterator($this->tokens);
+        if ($start)
+        {
+            $it->seek($start);
+            if ($it->key() !== $start) 
+                throw new \Exception("Cannot seek to $start");
+        }
+        echo "start=$start\n";
+        do 
+        {
+            $token = $it->current();
+            $i = $it->key();
+            if ($token->is($types))
+                return $i;
+            $it->next();
+        } while ($it->valid());
+    }
+    
+    /**
+     * @param type $i
+     * @return Token
+     */
+    public function getTokenByNumber($i)
+    {
+        return $this->tokens[$i];
+    }
+    
     protected function replaceTokensToNewType($start, $end, $newType)
     {
         for ($i=$start;$i<=$end;$i++)
