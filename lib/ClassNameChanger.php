@@ -57,7 +57,6 @@ class ClassNameChanger
             if (strpos($class, $k) === 0)
                 $class = preg_replace('#(^|_)#', '\\', $class);
         }
-        
         return $class;
     }
 }

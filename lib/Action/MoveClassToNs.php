@@ -15,7 +15,7 @@ class MoveClassToNs extends AbstractAction
     {
         $a = explode('\\', $className);
         $c = array_pop($a);
-        return [ implode('\\', $a) , $c ]; 
+        return [ ltrim(implode('\\', $a), '\\') , $c ]; 
     }
     
     function insertNamespace($i, $ns)
@@ -36,23 +36,45 @@ class MoveClassToNs extends AbstractAction
     {
         $this->stream = $stream;
         
-        
         $it = $this->stream->findNextToken(TokenStream::T_CLASS_NAME);
         if (!$it) return; // no class defs found
         $firstClass = $this->stream->getTokenByNumber($it)->getContent();
         list($ns, $cl) = $this->parseNsAndClass($firstClass);
-        $ns = ltrim($ns, '\\');
         $i = $this->stream->findNextToken(T_OPEN_TAG, 0);
         if ($i === null)
             throw new \Exception("Cannot add namespace: may not find PHP open tag");
         $this->insertNamespace($i, $ns);
+        $it += 4;
         /// found following classes
         $l = 0;
         while ($it = $this->stream->findNextToken(TokenStream::T_CLASS_NAME, $it+4)) {
             $class = $this->stream->getTokenByNumber($it)->getContent();
-            echo "$it=$class\n";
-            if ($l++ > 10) return;
+            list($ns, $cl) = $this->parseNsAndClass($class);
+            $this->insertNamespace($it - 3, $ns);
+            $it+=4; //
+            if ($l++ > 1000) throw new \Exception("endless cycle?"); // endless cycle?
         };
+        //// now as we inserted all namespaces, move on the file stream to simplify class names
+        $it = 0;
+        $currentNs = null;
+        while ($it = $this->stream->findNextToken(array(
+                TokenStream::T_CLASS_ARG, TokenStream::T_CLASS_NAME, 
+                TokenStream::T_CLASS_NEW, TokenStream::T_EXTENDS_NAME,
+                TokenStream::T_FUNCTION_ARG, TokenStream::T_NS_NAME,
+                ), $it))
+        {
+            $token = $this->stream->getTokenByNumber($it);
+            if ($token->is(TokenStream::T_NS_NAME))
+            {
+                $currentNs = $token->getContent();
+            } else {
+                $class = $token->getContent();
+                $prefix = '\\' . $currentNs . '\\';
+                if (strpos($class, $prefix)===0)
+                    $token->setContent(substr($class, strlen($prefix)));
+            }
+            $it++;
+        }
         
     }
     

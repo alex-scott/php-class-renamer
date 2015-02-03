@@ -141,7 +141,6 @@ class TokenStream
             if ($it->key() !== $start) 
                 throw new \Exception("Cannot seek to $start");
         }
-        echo "start=$start\n";
         do 
         {
             $token = $it->current();

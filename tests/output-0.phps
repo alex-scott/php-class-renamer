@@ -21,7 +21,6 @@ class Record
 }
 
 namespace Am\Orm\Record;
-
 class Xx extends \Am\Orm\Record
 {
     function run2(\Am\Orm\Record $r, array $x, $y)

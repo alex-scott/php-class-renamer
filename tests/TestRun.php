@@ -10,7 +10,7 @@ class Test_FileProcessor extends \PHPUnit_Framework_TestCase
         $changer = new ClassNameChanger();
         $changer->addFixed('Am_Record', 'Am_Orm_Record');
         $changer->addFixed('Am_Table', 'Am_Orm_Table');
-        $changer->addPattern('^Am_Record\b', 'Am_Orm');
+        $changer->addPattern('^Am_Record(_|$)', 'Am_Orm_Record$1');
         $changer->addToNs('Am_'); //convert all class names starting with Am_ to namespaces
 
         $tr = new FileProcessor();
