@@ -10,7 +10,7 @@ class Record
     /*
      * 
      */
-    function __construct($xx) {
+    function __construct(Record\Xx $xx) {
         
     }
     

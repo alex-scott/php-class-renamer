@@ -43,7 +43,10 @@ class TokenStream
             $this->addToken(new Token($t));
         }
         $this->setState(null, null, $t[2]);
-        
+    }
+    
+    public function dumpFoundClassTokens()
+    {
         foreach ($this->getTokens() as $t)
         {
             switch ($t->getType())
@@ -253,19 +256,17 @@ class TokenStream
     protected function endT_USE($type, $content, $line)
     {
         reset($this->tokensBefore);
-        $content = '';
         while (list($k,$tok) = each($this->tokensBefore))
-            if ($tok->is(T_STRING)) 
+            if ($tok->is(T_STRING, T_NS_SEPARATOR)) 
             {
                 $end = $start = $k; break;
             }
         while (list($k,$tok) = each($this->tokensBefore))
-            if ($tok->is(T_STRING))
+            if ($tok->is(T_STRING, T_NS_SEPARATOR))
             {
                 $end = $k;
             }
-        
-        $this->replaceTokensToNewType($start, $end, T_USE_NS);
+        $this->replaceTokensToNewType($start, $end, Token::T_USE_NS);
     }
     
     protected function endT_FUNCTION_ARG($type, $content, $line)
@@ -275,10 +276,7 @@ class TokenStream
         list($start, $end, $content, $line) = $this->findTokensBack([T_STRING, T_NS_SEPARATOR], $start-1);
         if ($content == 'array') return;
         if (!$content) return;
-        echo "$start=$end=$content\n";
-        print_r($this->tokens);
         $this->replaceTokensToNewType($start, $end, Token::T_FUNCTION_ARG);
-        print_r($this->tokens);
     }
     
     protected function endT_NAMESPACE($type, $content, $line)
@@ -313,9 +311,9 @@ class TokenStream
         return $this->tokens;
     }
     
-    public function setTokens(array $tokens)
+    public function replaceTokens($offset, $length, array $replacement)
     {
-        $this->tokens = $tokens;
+        return array_splice($this->tokens, $offset, $length, $replacement);
     }
 
     public function getFileContent()

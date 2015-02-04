@@ -20,15 +20,13 @@ class MoveClassToNs extends AbstractAction
     
     function insertNamespace($i, $ns)
     {
-        $tokens = $this->stream->getTokens();
-        $token = $tokens[$i];
-        array_splice($tokens, $i+1, 0, array(
+        $token = $this->stream->getTokenByNumber($i);
+        $this->stream->replaceTokens($i+1, 0, array(
             new Token(T_NAMESPACE, 'namespace', $token->getLine()),
             new Token(Token::T_NONE, " ", $token->getLine()),
             new Token(Token::T_NS_NAME, $ns, $token->getLine()),
             new Token(Token::T_NONE, ";\n", $token->getLine()),
         ));
-        $this->stream->setTokens($tokens);
         $this->currentNs = $ns;
     }
     

@@ -9,7 +9,7 @@ class Am_Record
     /*
      * 
      */
-    function __construct($xx) {
+    function __construct(Am_Record_Xx $xx) {
         
     }
     

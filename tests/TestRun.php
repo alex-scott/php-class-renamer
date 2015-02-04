@@ -14,7 +14,7 @@ class Test_FileProcessor extends \PHPUnit_Framework_TestCase
         $this->assertEquals(file_get_contents(__DIR__ . '/output-1.txt'), $ts->dumpTokens());
     }
     
-    function xtestOk()
+    function testOk()
     {
         $changer = new ClassNameChanger();
         $changer->addFixed('Am_Record', 'Am_Orm_Record');
@@ -25,9 +25,6 @@ class Test_FileProcessor extends \PHPUnit_Framework_TestCase
         $tr = new FileProcessor();
         $tr->addAction(new Action\RenameClass($changer));
         $tr->addAction(new Action\MoveClassToNs($changer));
-        ini_set('display_errors', true);
-        set_time_limit(1);
-        error_reporting(E_ALL | E_NOTICE);
         
         $output = $tr->process(file_get_contents(__DIR__ . '/input-0.phps'), 'xx', 'yy');
         $this->assertEquals(file_get_contents(__DIR__ . '/output-0.phps'), $output);
