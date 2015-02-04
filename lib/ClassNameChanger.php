@@ -67,7 +67,10 @@ class ClassNameChanger
             foreach ($this->moveExtends as $k => $v)
             {
                 if (strpos($extends, $k)===0)
+                {
                     $class = $v . $class;
+                    break;
+                }
             }
         }
             

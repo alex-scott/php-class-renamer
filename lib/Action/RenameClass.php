@@ -21,7 +21,7 @@ class RenameClass extends AbstractAction
                     
                 case Token::T_CLASS_NAME:
                     $i = $stream->findNextToken(Token::T_EXTENDS_NAME, $k+1);
-                    if (($i - $k) <= 6) 
+                    if ($i && (($i - $k) <= 6))
                     {
                         $ext = $stream->getTokenByNumber($i)->getContent();
                     }
