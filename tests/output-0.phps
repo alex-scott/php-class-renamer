@@ -20,6 +20,9 @@ class Record
     }
 }
 
+namespace Am\Orm\Table;
+class Xx { }
+
 namespace Am\Orm\Record;
 class Xx extends \Am\Orm\Record
 {
@@ -28,3 +31,6 @@ class Xx extends \Am\Orm\Record
         
     }
 }
+
+namespace Am\Orm;
+class Aa extends Table\Xx { }

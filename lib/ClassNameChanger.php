@@ -8,6 +8,15 @@ class ClassNameChanger
     protected $patterns = array();
     protected $spatterns = array();
     protected $toNs = array();
+    protected $moveExtends = array();
+    
+    protected $renames = array();
+    
+    
+    public function getRenames()
+    {
+        return $this->renames;
+    }
     
     function reset()
     {
@@ -38,11 +47,30 @@ class ClassNameChanger
         $this->toNs[] = $prefix;
         return $this;
     }
+    function moveExtends($whatExtends, $targetNs)
+    {
+        $this->moveExtends[$whatExtends] = $targetNs;
+    }
     function replace($class, $extends = null)
     {
+        $class = trim($class);
+        if (isset($this->renames[$class]))
+            return $this->renames[$class];
+        $orig = $class;
+        
         foreach ($this->fixed as $k => $v)
             if ($class == $k)
                 $class = $v;
+            
+        if ($extends)
+        {
+            foreach ($this->moveExtends as $k => $v)
+            {
+                if (strpos($extends, $k)===0)
+                    $class = $v . $class;
+            }
+        }
+            
         foreach ($this->patterns as $k => $v)
         {
             $class = preg_replace("#".$k."#X", $v, $class);
@@ -57,6 +85,9 @@ class ClassNameChanger
             if (strpos($class, $k) === 0)
                 $class = preg_replace('#(^|_)#', '\\', $class);
         }
+        
+        $this->renames[$orig] = $class;
+        
         return $class;
     }
 }

@@ -41,14 +41,16 @@ class MoveClassToNs extends AbstractAction
         $i = $this->stream->findNextToken(T_OPEN_TAG, 0);
         if ($i === null)
             throw new \Exception("Cannot add namespace: may not find PHP open tag");
-        $this->insertNamespace($i, $ns);
+        if ($ns)
+            $this->insertNamespace($i, $ns);
         $it += 4;
         /// found following classes
         $l = 0;
         while ($it = $this->stream->findNextToken(Token::T_CLASS_NAME, $it+4)) {
             $class = $this->stream->getTokenByNumber($it)->getContent();
             list($ns, $cl) = $this->parseNsAndClass($class);
-            $this->insertNamespace($it - 3, $ns);
+            if ($ns)
+                $this->insertNamespace($it - 3, $ns);
             $it+=4; //
             if ($l++ > 1000) throw new \Exception("endless cycle?"); // endless cycle?
         };

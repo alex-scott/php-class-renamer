@@ -1,11 +1,12 @@
 <?php
 
+
 namespace PhpClassRenamer\Action;
 
 use PhpClassRenamer\TokenStream;
 use PhpClassRenamer\Token;
 
-class RenameClass extends AbstractAction
+class RenameClassRefs extends AbstractAction
 {
     public function process(TokenStream $stream, $inputFn, $outputFn, $pass = 0)
     {
@@ -19,15 +20,11 @@ class RenameClass extends AbstractAction
                     $currentNs = $token->getContent();
                     break;
                     
-                case Token::T_CLASS_NAME:
-                    $i = $stream->findNextToken(Token::T_EXTENDS_NAME, $k+1);
-                    if (($i - $k) <= 6) 
-                    {
-                        $ext = $stream->getTokenByNumber($i)->getContent();
-                    }
-                    
-                    $new = $this->changer->replace(  $token->getContent() , $ext );
-                    $token->setContent( $new );
+                case Token::T_EXTENDS_NAME:
+                case Token::T_STATIC_CALL:
+                case Token::T_CLASS_NEW:
+                case Token::T_FUNCTION_ARG:
+                    $token->setContent( $this->changer->replace ($token->getContent()) );
                     break;
             }       
         }

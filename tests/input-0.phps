@@ -19,6 +19,8 @@ class Am_Record
     }
 }
 
+class Am_Table_Xx { }
+
 class Am_Record_Xx extends Am_Record
 {
     function run2(Am_Record $r, array $x, $y)
@@ -26,3 +28,5 @@ class Am_Record_Xx extends Am_Record
         
     }
 }
+
+class Aa extends Am_Table_Xx { }
