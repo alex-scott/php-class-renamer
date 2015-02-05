@@ -10,11 +10,13 @@ class Am_Record
      * 
      */
     function __construct(Am_Record_Xx $xx) {
-        
+        $b = new self;
+        $c = new Am_Record();
     }
     
     function run(array $xx)
     {
+        $x = (new Am_Table_Xx);
         return null;
     }
 }
@@ -25,7 +27,7 @@ class Am_Record_Xx extends Am_Record
 {
     function run2(Am_Record $r, array $x, $y)
     {
-        
+        $c = new $this->x;
     }
 }
 

@@ -185,12 +185,19 @@ class TokenStream
                 if ($this->state == T_NAMESPACE)
                 {
                     $this->setState(0, $content, $line);
-                    break;
+                } elseif ($this->state == T_NEW) {
+                    if ($lastToken->is(T_STRING) && trim($lastToken->getContent()) == trim($this->outputBefore)) {
+                        $lastToken->setType(Token::T_CLASS_NEW);
+                    } else {
+                        echo "NEW class creation for variable at $line [".$this->outputBefore."]\n";
+                    }
+                    $this->setState(0, $content, $line);
                 }
+                break;
             case Token::T_LEFT_BRACKET:
                 if ($this->state == T_NEW)
                 {
-                    if ($lastToken->getType() == T_STRING && trim($lastToken->getContent()) == trim($this->outputBefore)) {
+                    if ($lastToken->is(T_STRING) && trim($lastToken->getContent()) == trim($this->outputBefore)) {
                         $lastToken->setType(Token::T_CLASS_NEW);
                     } else {
                         echo "NEW class creation for variable at $line [".$this->outputBefore."]\n";
@@ -206,7 +213,16 @@ class TokenStream
             case Token::T_RIGHT_BRACKET:
                 $this->insideFunctionArgs = false;
                 if ($this->state == Token::T_FUNCTION_ARG)
+                {
                     $this->setState(0, $content, $line);
+                } elseif ($this->state == T_NEW) {
+                    if ($lastToken->is(T_STRING) && trim($lastToken->getContent()) == trim($this->outputBefore)) {
+                        $lastToken->setType(Token::T_CLASS_NEW);
+                    } else {
+                        echo "NEW class creation for variable at $line [".$this->outputBefore."]\n";
+                    }
+                    $this->setState(0, $content, $line);
+                }
                 break;
             case T_STRING:
                 if ($this->state == T_CLASS)

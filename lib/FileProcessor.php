@@ -12,26 +12,47 @@ class FileProcessor
         return $this;
     }
     
-    function processFile($inputFile, $outFile)
+    function addFile($inputFile, $outFile)
     {
-        $out = $this->process(file_get_contents($inputFile), $inputFile, $outFile);
-        $dir = dirname($outFile);
-        if (!is_dir($dir))
-            mkdir($dir);
-        file_put_contents($outFile, $out);
-        return $this;
+        $this->files[$inputFile] = array(
+            'in' => $inputFile,
+            'out' => $outFile,
+            'stream' => new TokenStream(file_get_contents($inputFile)),
+        );
     }
     
-    function process($inputSource, $filename, $outFile)
+    function process()
     {
-        $stream = new TokenStream($inputSource);
         foreach ($this->actions as $pass => $actions)
         {
-            foreach ($actions as $action)
+            foreach ($this->files as & $rec)
             {
-                $action->process($stream, $filename, $outFile, $pass);
+                foreach ($actions as $action)
+                {
+                    $action->process($rec['stream'], $rec['in'], $rec['out'], $pass);
+                }
             }
         }
+    }    
+    
+    function getFileContent($inputFn)
+    {
+        return $this->files[$inputFn]['stream']->getFileContent();
+    }
+    
+    function storeFiles()
+    {
+        foreach ($this->files as & $rec)
+        {
+            $dir = dirname($rec['out']);
+            if (!file_exists($dir))
+                mkdir($dir, 0777, true);
+            file_put_contents($rec['out'], $rec['stream']->getFileContent());
+        }
+    }
+    
+    function processString($inputSource, $filename, $outFile)
+    {
         return $stream->getFileContent();
     }
 }

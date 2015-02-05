@@ -11,11 +11,13 @@ class Record
      * 
      */
     function __construct(Record\Xx $xx) {
-        
+        $b = new self;
+        $c = new Record();
     }
     
     function run(array $xx)
     {
+        $x = (new Table\Xx);
         return null;
     }
 }
@@ -28,7 +30,7 @@ class Xx extends \Am\Orm\Record
 {
     function run2(\Am\Orm\Record $r, array $x, $y)
     {
-        
+        $c = new $this->x;
     }
 }
 
