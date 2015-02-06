@@ -48,10 +48,13 @@ class MoveClassToNs extends AbstractAction
         $l = 0;
         while ($it = $this->stream->findNextToken(Token::T_CLASS_NAME, $it+4)) {
             $class = $this->stream->getTokenByNumber($it)->getContent();
-            list($ns, $cl) = $this->parseNsAndClass($class);
-            if ($ns)
+            list($nns, $cl) = $this->parseNsAndClass($class);
+            if ($nns && $nns != $ns)
+            {
+                $ns = $nns;
                 $this->insertNamespace($it - 3, $ns);
-            $it+=4; //
+                $it+=4; //
+            }
             if ($l++ > 1000) throw new \Exception("endless cycle?"); // endless cycle?
         };
         //// now as we inserted all namespaces, move on the file stream to simplify class names
@@ -75,7 +78,9 @@ class MoveClassToNs extends AbstractAction
                     if (strpos($class, $prefix)===0)
                     {
                         $token->setContent(substr($class, strlen($prefix)));
-                    } elseif ($currentNs && strpos($class, '\\')===false) {
+                    } elseif ($currentNs
+                        && !$token->is(Token::T_CLASS_NAME)
+                        && strpos($class, '\\')===false) {
                         { // we are in namespace, prefix all not-namespaced classes
                             $token->setContent('\\' . $class);
                         }

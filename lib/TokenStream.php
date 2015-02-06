@@ -123,9 +123,12 @@ class TokenStream
         $it = new \ArrayIterator($this->tokens);
         if ($start)
         {
-            $it->seek($start);
-            if ($it->key() !== $start) 
-                throw new \Exception("Cannot seek to $start");
+            try {
+                $it->seek($start);
+            } catch (\OutOfBoundsException $e) {
+                return;
+                //throw new \Exception("Cannot seek to $start");
+            }
         }
         do 
         {
@@ -252,6 +255,9 @@ class TokenStream
             case T_NAMESPACE:
             case T_FUNCTION:
                 $this->setState($type, $content, $line);
+                break;
+            case T_INTERFACE: // emulate T_CLASS
+                $this->setState(T_CLASS, $content, $line);
                 break;
         }
         $this->tokens[] = new Token($type, $content, $line);

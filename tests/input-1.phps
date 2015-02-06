@@ -7,3 +7,5 @@ function(My_Class $x, \Xx\SecondClass $y, $a, array $b)
     $c = (new My_Class);
     return $x;
 }
+
+interface Oo {}

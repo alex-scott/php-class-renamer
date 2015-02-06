@@ -23,6 +23,9 @@ class Record
     }
 }
 
+namespace Am;
+interface Grid {}
+
 namespace Am\Orm\Table;
 class Xx { }
 
@@ -37,3 +40,6 @@ class Xx extends \Am\Orm\Record
 
 namespace Am\Orm;
 class Aa extends Table\Xx { }
+
+namespace Am\Oo;
+class My_Grid implements \Am\Grid {} 
