@@ -11,10 +11,12 @@ class TokenStream
     protected $output = '';
     protected $insideFunctionArgs = false;
     protected $constants = array();
+    protected $filename;
     
-    function __construct($source)
+    function __construct($source, $filename)
     {
         $this->source = $source;
+        $this->filename = $filename;
         $this->tokenize();
     }
     
@@ -74,7 +76,7 @@ class TokenStream
         if ($start !== null)
         {
             if ($starto != $start)
-                echo "Variable static call [$contento] at line $lineo\n";
+                echo "Variable static call [$contento] at line $lineo : {$this->filename}\n";
             elseif ($content != 'self')
                 $this->replaceTokensToNewType($start, $end, Token::T_STATIC_CALL);
         }
@@ -187,9 +189,10 @@ class TokenStream
                     $this->setState(0, $content, $line);
                 } elseif ($this->state == T_NEW) {
                     if ($lastToken->is(T_STRING) && trim($lastToken->getContent()) == trim($this->outputBefore)) {
-                        $lastToken->setType(Token::T_CLASS_NEW);
+                        if ($lastToken->getContent() != 'self')
+                            $lastToken->setType(Token::T_CLASS_NEW);
                     } else {
-                        echo "NEW class creation for variable at $line [".$this->outputBefore."]\n";
+                        echo "NEW class creation for variable at $line : {$this->filename} [".$this->outputBefore."]\n";
                     }
                     $this->setState(0, $content, $line);
                 }
@@ -198,9 +201,10 @@ class TokenStream
                 if ($this->state == T_NEW)
                 {
                     if ($lastToken->is(T_STRING) && trim($lastToken->getContent()) == trim($this->outputBefore)) {
-                        $lastToken->setType(Token::T_CLASS_NEW);
+                        if ($lastToken->getContent() != 'self')
+                            $lastToken->setType(Token::T_CLASS_NEW);
                     } else {
-                        echo "NEW class creation for variable at $line [".$this->outputBefore."]\n";
+                        echo "NEW class creation for variable at $line : {$this->filename}[".$this->outputBefore."]\n";
                     }
                     $this->setState(0, $content, $line);
                 } elseif ($this->state == T_USE) {
@@ -217,9 +221,10 @@ class TokenStream
                     $this->setState(0, $content, $line);
                 } elseif ($this->state == T_NEW) {
                     if ($lastToken->is(T_STRING) && trim($lastToken->getContent()) == trim($this->outputBefore)) {
-                        $lastToken->setType(Token::T_CLASS_NEW);
+                        if ($lastToken->getContent() != 'self')
+                            $lastToken->setType(Token::T_CLASS_NEW);
                     } else {
-                        echo "NEW class creation for variable at $line [".$this->outputBefore."]\n";
+                        echo "NEW class creation for variable at $line : {$this->filename}[".$this->outputBefore."]\n";
                     }
                     $this->setState(0, $content, $line);
                 }

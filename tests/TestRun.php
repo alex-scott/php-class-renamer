@@ -24,7 +24,7 @@ class Test_FileProcessor extends \PHPUnit_Framework_TestCase
     function testParseFunctionArgs()
     {
         $source = file_get_contents(__DIR__ . '/input-1.phps');
-        $ts = new TokenStream($source);
+        $ts = new TokenStream($source, '1');
         //file_put_contents(__DIR__ . '/output-1.txt', $ts->dumpTokens());
         $this->assertEquals(file_get_contents(__DIR__ . '/output-1.txt'), $ts->dumpTokens());
     }

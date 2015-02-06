@@ -69,9 +69,18 @@ class MoveClassToNs extends AbstractAction
                 $currentNs = $token->getContent();
             } else {
                 $class = $token->getContent();
-                $prefix = '\\' . $currentNs . '\\';
-                if (strpos($class, $prefix)===0)
-                    $token->setContent(substr($class, strlen($prefix)));
+                if ($currentNs)
+                {
+                    $prefix = '\\' . $currentNs . '\\';
+                    if (strpos($class, $prefix)===0)
+                    {
+                        $token->setContent(substr($class, strlen($prefix)));
+                    } elseif ($currentNs && strpos($class, '\\')===false) {
+                        { // we are in namespace, prefix all not-namespaced classes
+                            $token->setContent('\\' . $class);
+                        }
+                    }
+                }
             }
             $it++;
         }

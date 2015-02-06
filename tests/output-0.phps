@@ -13,6 +13,7 @@ class Record
     function __construct(Record\Xx $xx) {
         $b = new self;
         $c = new Record();
+        throw new \Exception;
     }
     
     function run(array $xx)
@@ -28,7 +29,7 @@ class Xx { }
 namespace Am\Orm\Record;
 class Xx extends \Am\Orm\Record
 {
-    function run2(\Am\Orm\Record $r, array $x, $y)
+    function run2(\Am\Orm\Record $r, array $x, $y, \Iterator $it)
     {
         $c = new $this->x;
     }

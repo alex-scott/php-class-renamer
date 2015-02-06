@@ -17,7 +17,7 @@ class FileProcessor
         $this->files[$inputFile] = array(
             'in' => $inputFile,
             'out' => $outFile,
-            'stream' => new TokenStream(file_get_contents($inputFile)),
+            'stream' => new TokenStream(file_get_contents($inputFile), $inputFile),
         );
     }
     
