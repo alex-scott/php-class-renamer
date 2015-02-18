@@ -41,14 +41,24 @@ class FileProcessor
         return $this->files[$inputFn]['stream']->getFileContent();
     }
     
-    function storeFiles()
+    function getFilename($inputFn)
+    {
+        return $this->files[$inputFn]['stream']->getFilename();
+    }
+    
+    function storeFiles($outDir)
     {
         foreach ($this->files as & $rec)
         {
-            $dir = dirname($rec['out']);
+            $fn = $rec['stream']->getFilename();
+            if (!$fn)
+                $fn = $rec['out'];
+            else
+                $fn = $outDir . '/' . $fn;
+            $dir = dirname($fn);
             if (!file_exists($dir))
                 mkdir($dir, 0777, true);
-            file_put_contents($rec['out'], $rec['stream']->getFileContent());
+            file_put_contents($fn, $rec['stream']->getFileContent());
         }
     }
     
