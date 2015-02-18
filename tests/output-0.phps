@@ -41,5 +41,5 @@ class Xx extends \Am\Orm\Record
 namespace Am\Orm;
 class Aa extends Table\Xx { }
 
-namespace Am\Oo;
-class My_Grid implements \Am\Grid {} 
+namespace Am\Oo\My;
+class Grid implements \Am\Grid {}

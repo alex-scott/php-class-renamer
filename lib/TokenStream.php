@@ -259,6 +259,9 @@ class TokenStream
             case T_INTERFACE: // emulate T_CLASS
                 $this->setState(T_CLASS, $content, $line);
                 break;
+            case T_IMPLEMENTS:
+                $this->setState(T_EXTENDS, $content, $line);
+                break;
         }
         $this->tokens[] = new Token($type, $content, $line);
         end($this->tokens);
