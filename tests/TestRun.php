@@ -53,6 +53,8 @@ class Test_FileProcessor extends \PHPUnit_Framework_TestCase
         $output = $tr->getFileContent($fn);
         //file_put_contents(__DIR__ . '/output-0.phps', $output);
         $this->assertEquals(file_get_contents(__DIR__ . '/output-0.phps'), $output);
+        
+        $this->assertEquals('Am/Orm/Record', $tr->getFileName($fn));
     }
     
 }

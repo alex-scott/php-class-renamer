@@ -365,7 +365,27 @@ class TokenStream
         return $out;
     }
     
-    
+    public function getFilename()
+    {
+        $ns = $class = null;
+        foreach ($this->tokens as $token)
+        {
+            switch ($token->getType())
+            {
+                case Token::T_NS_NAME:
+                    if (!$ns)
+                        $ns = $token->getContent();
+                    break;
+                case Token::T_CLASS_NAME:
+                    if (!$class)
+                        $class = $token->getContent();
+                    break;
+            }
+        }
+        if (!$class) return;
+        if ($ns) $class = $ns . '\\' . $class;
+        return str_replace('\\', '/', $class) . '.php';
+    }
 }
 
 
