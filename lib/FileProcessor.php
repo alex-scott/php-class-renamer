@@ -33,7 +33,6 @@ class FileProcessor
                 }
             }
         }
-        echo $rec['stream']->dumpTokens();
     }    
     
     function getFileContent($inputFn)

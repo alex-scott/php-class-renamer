@@ -316,23 +316,23 @@ class TokenStream
         foreach ($this->tokensBefore as $k => $tok)
         {
             // skip only whitespace and ( else failure
-            if (!$start && in_array($tok[0], [T_STRING, T_NS_SEPARATOR]))
+            if (!$start && $tok->is(T_STRING, T_NS_SEPARATOR))
             {
                 $start = $end = $k;
-                $content .= $tok[1];
+                $content .= $tok->getContent();
                 continue;
-            } elseif ($start && !in_array($tok[0], [T_STRING, T_NS_SEPARATOR])) {
+            } elseif ($start && !$tok->is(T_STRING, T_NS_SEPARATOR)) {
                 break;
             } 
             if ($start) {
                 $end = $k;
-                $content .= $tok[1];
+                $content .= $tok->getContent();
             }
         }
         if (!$start) return;
         //
         array_splice($this->tokens, $start, $end-$start, 
-                array(new Token(Token::T_NS_NAME, $content, $tok[2])));
+                array(new Token(Token::T_NS_NAME, $content, $tok->getLine())));
         
     }
     
@@ -364,6 +364,8 @@ class TokenStream
         }
         return $out;
     }
+    
+    
 }
 
 
