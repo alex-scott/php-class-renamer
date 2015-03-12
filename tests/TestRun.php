@@ -57,4 +57,4 @@ class Test_FileProcessor extends \PHPUnit_Framework_TestCase
         $this->assertEquals('Am/Orm/Record', $tr->getFileName($fn));
     }
     
-}
+} * abstract namespace Am;\nclass Crypt

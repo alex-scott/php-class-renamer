@@ -42,4 +42,4 @@ namespace Am\Orm;
 class Aa extends Table\Xx { }
 
 namespace Am\Oo\My;
-class Grid implements \Am\Grid {}
+abstract class Grid implements \Am\Grid {}

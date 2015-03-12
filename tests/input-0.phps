@@ -36,4 +36,4 @@ class Am_Record_Xx extends Am_Record
 
 class Aa extends Am_Table_Xx { }
 
-class Am_Oo_My_Grid implements Am_Grid {}
+abstract class Am_Oo_My_Grid implements Am_Grid {}
