@@ -140,6 +140,18 @@ class TokenStream
         } while ($it->valid());
     }
     
+    public function findPrevToken($types, $start=null, $limit=-1)
+    {
+        foreach (array_reverse($this->tokens, true) as $i => $token)
+        {
+            if ($start !== null && ($i != $start)) continue;
+            $start = null; 
+            if ($token->is($types))
+                return $i;
+            if (--$limit == 0) return;
+        }
+    }
+    
     /**
      * @param type $i
      * @return Token
