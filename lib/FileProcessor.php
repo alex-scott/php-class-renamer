@@ -47,6 +47,7 @@ class FileProcessor
     
     function storeFiles($outDir)
     {
+        $errors = array();
         foreach ($this->files as & $rec)
         {
             $fn = $rec['stream']->getFilename();
@@ -58,7 +59,12 @@ class FileProcessor
             if (!file_exists($dir))
                 mkdir($dir, 0777, true);
             file_put_contents($fn, $rec['stream']->getFileContent());
+            $output = $exit = null;
+            exec("/usr/bin/php -l " . escapeshellarg($fn), $output, $exit);
+            if ($exit)
+                $errors[$fn] = $output;
         }
+        return $errors;
     }
     
     function processString($inputSource, $filename, $outFile)
