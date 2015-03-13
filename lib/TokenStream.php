@@ -358,10 +358,14 @@ class TokenStream
         return array_splice($this->tokens, $offset, $length, $replacement);
     }
 
-    public function getFileContent()
+    public function getFileContent($startToken = null, $endToken = null)
     {
         $out = '';
-        foreach ($this->tokens as $token)
+        if ($startToken !== null)
+            $arr = array_slice($this->tokens, $startToken, ($endToken !== null) ? $endToken-$startToken+1 : null);
+        else
+            $arr = $this->tokens;
+        foreach ($arr as $token)
             $out .= $token->getContent();
         return $out;
     }
@@ -395,9 +399,65 @@ class TokenStream
             }
         }
         if (!$class) return;
+        return $this->getFilenameForClass($class, $ns);
+    }
+    
+    function getFilenameForClass($class, $ns = null)
+    {
         if ($ns) $class = $ns . '\\' . $class;
         return str_replace('\\', '/', $class) . '.php';
     }
+    
+    public function getFilesAndContent()
+    {
+        $ret = array();
+        
+        $first = $currentNs = $ns = $class = null;
+        
+        $prevStop = 0;
+        
+        foreach ($this->tokens as $i => $token)
+        {
+            switch ($token->getType())
+            {
+                case T_NS_C:
+                case T_USE:
+                case T_CLASS:
+                case T_INTERFACE:
+                case T_ABSTRACT:
+                    if (!$first) $first = $i;
+                    break;
+                case Token::T_NS_NAME:
+                    $currentNs = $token->getContent();
+                    break;
+                case Token::T_CLASS_NAME:
+                    if ($class)
+                    { // class has been already defined! add previous tokens to $ret
+                        $content = $this->getFileContent($prevStop, $first - 1);
+                        if (count($ret))
+                            $content = '<'. "?php \n" . $content; 
+                        $ret[ $this->getFilenameForClass($class, $ns) ] = $content;
+                        $prevStop = $first;
+                        $first = null;
+                    }
+                    $class = $token->getContent();
+                    $ns = $currentNs;
+                    break;
+            }
+        }
+        if (!$class)
+        {
+            echo "Error: no class found in file {$this->filename}\n";
+            return array();
+        }
+        
+        $content = $this->getFileContent($prevStop);
+        if (count($ret))
+            $content = '<'. "?php \n" . $content; 
+        $ret[ $this->getFilenameForClass($class, $ns) ] = $content;
+        return $ret;
+    }
+    
 }
 
 

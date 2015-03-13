@@ -1,0 +1,21 @@
+==Aa/Bb/Tt.php==
+<?php
+namespace Aa\BbBb;
+abstract class Tt {
+    function oo() {} 
+}
+
+==Aa/Cc/Pp.php==
+<?php 
+namespace Aa\Cc;
+final abstract class Pp {}
+
+
+==Aa/Cc/Ww.php==
+<?php 
+namespace Aa\Cc;
+class Ww extends \Aa\Bb\Tt
+{
+    
+}
+function oo() { return '00'; }

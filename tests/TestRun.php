@@ -32,6 +32,25 @@ class Test_FileProcessor extends \PHPUnit_Framework_TestCase
         $this->assertEquals(68, $ts->findPrevToken(T_WHITESPACE, 68, 1));
     }
     
+    function testStoreFiles()
+    {
+        $exp = file_get_contents(__DIR__ . '/output-2.txt');
+        foreach (preg_split('/(==(.+?)==)\n/ms', $exp, -1, PREG_SPLIT_DELIM_CAPTURE) as $k => $split)
+        {
+            if ($k == 0) continue;
+            if (($k % 3) == 2)
+                $fn = $split;
+            if (($k % 3) == 0)
+                $expected[$fn] = $split;
+        }
+        
+        $source = file_get_contents(__DIR__ . '/input-2.phps');
+        
+        $ts = new TokenStream($source, '2');
+        $files = $ts->getFilesAndContent();
+        $this->assertEquals($expected, $files);
+    }
+    
     function testOk()
     {
         $changer = new ClassNameChanger();
@@ -54,6 +73,7 @@ class Test_FileProcessor extends \PHPUnit_Framework_TestCase
         $tr->addFile(__DIR__ . '/input-1.phps', 'yy');
         $tr->process();
         $output = $tr->getFileContent($fn);
+        
         //file_put_contents(__DIR__ . '/output-0.phps', $output);
         $this->assertEquals(file_get_contents(__DIR__ . '/output-0.phps'), $output);
         
