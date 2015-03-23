@@ -62,7 +62,7 @@ P;
         $ts = new TokenStream($source, '2');
         $files = $ts->getFilesAndContent();
         $this->assertEquals($files['Aa/Bb/Cc.php'], '<' . '?php
-namespace Aa\BbBb;
+namespace Aa\Bb;
 class Cc {}');
     }
     function testStore2Class()
@@ -76,9 +76,13 @@ class Dd {}
 P;
         $ts = new TokenStream($source, '2');
         $files = $ts->getFilesAndContent();
-        $this->assertEquals($files['Aa/Bb/Cc.php'], '<' . '?php
-namespace Aa\BbBb;
-class Cc {}');
+        $this->assertEquals('<' . '?php
+namespace Aa\Bb;
+class Cc {}
+// AA
+', $files['Aa/Bb/Cc.php']);
+        $this->assertEquals('<' . '?php
+class Dd {}', $files['Aa/Bb/Dd.php']);
     }
     
     function testOk()

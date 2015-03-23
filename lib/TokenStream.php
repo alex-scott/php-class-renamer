@@ -343,7 +343,7 @@ class TokenStream
         }
         if (!$start) return;
         //
-        array_splice($this->tokens, $start, $end-$start, 
+        array_splice($this->tokens, $start, $end-$start+1, 
                 array(new Token(Token::T_NS_NAME, $content, $tok->getLine())));
         
     }
@@ -370,13 +370,17 @@ class TokenStream
         return $out;
     }
     
-    public function dumpTokens()
+    public function dumpTokens($addNumbers = false)
     {
         $out = "";
-        foreach ($this->tokens as $t)
+        foreach ($this->tokens as $i=>$t)
         {
-            $out .= sprintf("%d:%s=%s=\n", 
-               $t->getLine(), $t->getName(), str_replace("\n", "\\n", $t->getContent()));
+            if ($addNumbers)
+                $out .= sprintf("%d\t%d:%s=%s=\n", 
+                   $i, $t->getLine(), $t->getName(), str_replace("\n", "\\n", $t->getContent()));
+            else
+                $out .= sprintf("%d:%s=%s=\n", 
+                   $t->getLine(), $t->getName(), str_replace("\n", "\\n", $t->getContent()));
         }
         return $out;
     }
@@ -415,12 +419,11 @@ class TokenStream
         $first = $currentNs = $ns = $class = null;
         
         $prevStop = 0;
-        
         foreach ($this->tokens as $i => $token)
         {
             switch ($token->getType())
             {
-                case T_NS_C:
+                case T_NAMESPACE:
                 case T_USE:
                 case T_CLASS:
                 case T_INTERFACE:
@@ -433,12 +436,15 @@ class TokenStream
                 case Token::T_CLASS_NAME:
                     if ($class)
                     { // class has been already defined! add previous tokens to $ret
+                        
                         $content = $this->getFileContent($prevStop, $first - 1);
                         if (count($ret))
-                            $content = '<'. "?php \n" . $content; 
+                            $content = '<'. "?php\n" . $content; 
                         $ret[ $this->getFilenameForClass($class, $ns) ] = $content;
                         $prevStop = $first;
                         $first = null;
+                    } else {
+                        $first = null; // reset $first
                     }
                     $class = $token->getContent();
                     $ns = $currentNs;
@@ -453,7 +459,7 @@ class TokenStream
         
         $content = $this->getFileContent($prevStop);
         if (count($ret))
-            $content = '<'. "?php \n" . $content; 
+            $content = '<'. "?php\n" . $content; 
         $ret[ $this->getFilenameForClass($class, $ns) ] = $content;
         return $ret;
     }
