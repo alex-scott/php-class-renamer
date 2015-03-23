@@ -50,19 +50,19 @@ class FileProcessor
         $errors = array();
         foreach ($this->files as & $rec)
         {
-            $fn = $rec['stream']->getFilename();
-            if (!$fn)
-                $fn = $rec['out'];
-            else
-                $fn = $outDir . '/' . $fn;
-            $dir = dirname($fn);
-            if (!file_exists($dir))
-                mkdir($dir, 0777, true);
-            file_put_contents($fn, $rec['stream']->getFileContent());
-            $output = $exit = null;
-            exec("/usr/bin/php -l " . escapeshellarg($fn), $output, $exit);
-            if ($exit)
-                $errors[$fn] = $output;
+            $files = $rec['stream']->getFilesAndContent();
+            foreach ($files as $fn => $content)
+            {
+                $fn = $outDir . DIRECTORY_SEPARATOR . $fn;
+                $dir = dirname($fn);
+                if (!file_exists($dir)) 
+                    mkdir($dir, 0755, true);
+                file_put_contents($fn, $content);
+                $output = $exit = null;
+                exec("/usr/bin/php -l " . escapeshellarg($fn), $output, $exit);
+                if ($exit)
+                    $errors[$fn] = $output;
+            }
         }
         return $errors;
     }

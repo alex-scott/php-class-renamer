@@ -70,21 +70,31 @@ class Cc {}');
         $source = '<' . <<<P
 ?php
 namespace Aa\Bb;
-class Cc {}
-// AA
-class Dd {}
+abstract class Cc {}
+/**
+ the doc block */
+class Dd { abstract function xx(); }
+// Oo
+class Ee {}
 P;
         $ts = new TokenStream($source, '2');
         $files = $ts->getFilesAndContent();
         $this->assertEquals('<' . '?php
 namespace Aa\Bb;
-class Cc {}
-// AA
-', $files['Aa/Bb/Cc.php']);
+abstract class Cc {}', $files['Aa/Bb/Cc.php']);
         $this->assertEquals('<' . '?php
 namespace Aa\Bb;
 
-class Dd {}', $files['Aa/Bb/Dd.php']);
+
+/**
+ the doc block */
+class Dd { abstract function xx(); }', $files['Aa/Bb/Dd.php']);
+        $this->assertEquals('<' . '?php
+namespace Aa\Bb;
+
+
+// Oo
+class Ee {}', $files['Aa/Bb/Ee.php']);
     }
     
     function testOk()

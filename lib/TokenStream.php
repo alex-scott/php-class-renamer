@@ -419,16 +419,27 @@ class TokenStream
         $first = $currentNs = $ns = $class = null;
         
         $prevStop = 0;
+        $prevTokens = array();
         foreach ($this->tokens as $i => $token)
         {
+            $prevTokens[$i] = $token;
             switch ($token->getType())
             {
                 case T_NAMESPACE:
-                case T_USE:
                 case T_CLASS:
                 case T_INTERFACE:
-                case T_ABSTRACT:
-                    if (!$first) $first = $i;
+                    if (!$first) 
+                    {   $first = $i;
+                        foreach (array_reverse($prevTokens, true) as $i => $tt)
+                            if ($tt->is([
+                                T_ABSTRACT, T_WHITESPACE, 
+                                T_FINAL, T_DOC_COMMENT, T_COMMENT,
+                                T_NAMESPACE, T_CLASS, T_INTERFACE]))
+                                $first = $i;
+                            else
+                                break;
+                        $prevTokens = array();
+                    }
                     break;
                 case Token::T_NS_NAME:
                     $currentNs = $token->getContent();
