@@ -82,6 +82,8 @@ class Cc {}
 // AA
 ', $files['Aa/Bb/Cc.php']);
         $this->assertEquals('<' . '?php
+namespace Aa\Bb;
+
 class Dd {}', $files['Aa/Bb/Dd.php']);
     }
     

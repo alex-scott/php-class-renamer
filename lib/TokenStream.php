@@ -438,6 +438,8 @@ class TokenStream
                     { // class has been already defined! add previous tokens to $ret
                         
                         $content = $this->getFileContent($prevStop, $first - 1);
+                        if ($ns && !preg_match('#^namespace #ms', $content))
+                            $content = "namespace $ns;\n\n" . $content;
                         if (count($ret))
                             $content = '<'. "?php\n" . $content; 
                         $ret[ $this->getFilenameForClass($class, $ns) ] = $content;
@@ -458,6 +460,8 @@ class TokenStream
         }
         
         $content = $this->getFileContent($prevStop);
+        if ($ns && !preg_match('#^namespace #ms', $content))
+            $content = "namespace $ns;\n\n" . $content;
         if (count($ret))
             $content = '<'. "?php\n" . $content; 
         $ret[ $this->getFilenameForClass($class, $ns) ] = $content;
