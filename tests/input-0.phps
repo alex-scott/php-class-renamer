@@ -28,6 +28,11 @@ class Am_Table_Xx { }
 
 class Am_Record_Xx extends Am_Record
 {
+    /**
+     * @param $x Am_Record
+     * @param Am_Grid
+     * @return Am_Record_Xx
+     */
     function run2(Am_Record $r, array $x, $y, Iterator $it)
     {
         $c = new $this->x;

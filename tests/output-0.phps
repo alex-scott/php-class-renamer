@@ -32,6 +32,11 @@ class Xx { }
 namespace Am\Orm\Record;
 class Xx extends \Am\Orm\Record
 {
+    /**
+     * @param $x \Am\Orm\Record
+     * @param \Am\Grid
+     * @return Xx
+     */    
     function run2(\Am\Orm\Record $r, array $x, $y, \Iterator $it)
     {
         $c = new $this->x;

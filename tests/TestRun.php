@@ -113,6 +113,7 @@ class Ee {}', $files['Aa/Bb/Ee.php']);
         $tr->addAction(new Action\RenameClass($changer));
         $tr->addAction(new Action\RenameClassRefs($changer));
         $tr->addAction(new Action\MoveClassToNs($changer), 2);
+        $tr->addAction(new Action\FixDocBlocks($changer));
         
         $fn = __DIR__ . '/input-0.phps';
         $tr->addFile($fn, 'xx');
