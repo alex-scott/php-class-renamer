@@ -25,7 +25,7 @@ class FixDocBlocks extends AbstractAction
                     $this->ns = $token->getContent();
                     break;
                 case T_DOC_COMMENT:
-                    $token->setContent(preg_replace_callback('#(^\s*\*\s*(@param|@return)\s+)([A-Za-z0-9_|]+)#m', array($this, '_rpl'), $token->getContent()));
+                    $token->setContent(preg_replace_callback('#(^\s*\*\s*(@var|@param|@return)\s+)([A-Za-z0-9_|]+)#m', array($this, '_rpl'), $token->getContent()));
                     break;
             }
         }
