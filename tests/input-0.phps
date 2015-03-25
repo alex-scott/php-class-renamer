@@ -29,9 +29,9 @@ class Am_Table_Xx { }
 class Am_Record_Xx extends Am_Record
 {
     /**
-     * @param $x Am_Record
+     * @param int|Am_Record $x
      * @param Am_Grid
-     * @return Am_Record_Xx
+     * @return Am_Record_Xx|null
      */
     function run2(Am_Record $r, array $x, $y, Iterator $it)
     {
