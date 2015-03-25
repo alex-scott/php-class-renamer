@@ -47,9 +47,9 @@ class ClassNameChanger
         $this->toNs[] = $prefix;
         return $this;
     }
-    function moveExtends($whatExtends, $targetNs)
+    function moveExtends($whatExtends, $targetNs, $exceptions = array())
     {
-        $this->moveExtends[$whatExtends] = $targetNs;
+        $this->moveExtends[$whatExtends] = array('targetNs' => $targetNs, 'exceptions' => $exceptions);
     }
     function replace($class, $extends = null)
     {
@@ -66,9 +66,9 @@ class ClassNameChanger
         {
             foreach ($this->moveExtends as $k => $v)
             {
-                if (strpos($extends, $k)===0)
+                if ((strpos($extends, $k)===0) && !in_array($class, $v['exceptions']))
                 {
-                    $class = $v . $class;
+                    $class = $v['targetNs'] . $class;
                     break;
                 }
             }
