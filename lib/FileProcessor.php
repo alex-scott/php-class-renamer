@@ -9,7 +9,7 @@ class FileProcessor
     function addAction(Action\AbstractAction $action, $pass = 0)
     {
         $this->actions[$pass][] = $action;
-        return $this;
+        return $action;
     }
     
     function addFile($inputFile, $outFile)

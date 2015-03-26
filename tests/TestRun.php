@@ -114,6 +114,8 @@ class Ee {}', $files['Aa/Bb/Ee.php']);
         $tr->addAction(new Action\RenameClassRefs($changer));
         $tr->addAction(new Action\MoveClassToNs($changer), 2);
         $tr->addAction(new Action\FixDocBlocks($changer), 3);
+        $tr->addAction(new Action\FixStringClassNames($changer), 3)
+            ->replaceStringClassStartingWith('Am_');
         
         $fn = __DIR__ . '/input-0.phps';
         $tr->addFile($fn, 'xx');
