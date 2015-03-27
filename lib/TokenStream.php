@@ -13,13 +13,16 @@ class TokenStream
     protected $constants = array();
     protected $filename;
     
-    function __construct($source, $filename)
+    protected $ignoreVariableClass = array();
+    
+    function __construct($source, $filename, $ignoreVariableClass = array())
     {
         $this->source = $source;
         $this->filename = $filename;
+        $this->ignoreVariableClass = $ignoreVariableClass;
         $this->tokenize();
     }
-    
+
     // todo : docblocks? method to rename known class names 
     
     function tokenize()
@@ -207,7 +210,8 @@ class TokenStream
                         if ($lastToken->getContent() != 'self')
                             $lastToken->setType(Token::T_CLASS_NEW);
                     } else {
-                        echo "NEW class creation for variable at $line : {$this->filename} [".$this->outputBefore."]\n";
+                        if (!in_array(trim($this->outputBefore), $this->ignoreVariableClass))
+                            echo "NEW class creation for variable at $line : {$this->filename} [".$this->outputBefore."]\n";
                     }
                     $this->setState(0, $content, $line);
                 }
@@ -219,7 +223,8 @@ class TokenStream
                         if ($lastToken->getContent() != 'self')
                             $lastToken->setType(Token::T_CLASS_NEW);
                     } else {
-                        echo "NEW class creation for variable at $line : {$this->filename}[".$this->outputBefore."]\n";
+                        if (!in_array(trim($this->outputBefore), $this->ignoreVariableClass))
+                            echo "NEW class creation for variable at $line : {$this->filename}[".$this->outputBefore."]\n";
                     }
                     $this->setState(0, $content, $line);
                 } elseif ($this->state == T_USE) {
@@ -239,7 +244,8 @@ class TokenStream
                         if ($lastToken->getContent() != 'self')
                             $lastToken->setType(Token::T_CLASS_NEW);
                     } else {
-                        echo "NEW class creation for variable at $line : {$this->filename}[".$this->outputBefore."]\n";
+                        if (!in_array(trim($this->outputBefore), $this->ignoreVariableClass))
+                            echo "NEW class creation for variable at $line : {$this->filename}[".$this->outputBefore."]\n";
                     }
                     $this->setState(0, $content, $line);
                 }
@@ -449,7 +455,7 @@ class TokenStream
                     { // class has been already defined! add previous tokens to $ret
                         
                         $content = $this->getFileContent($prevStop, $first - 1);
-                        if ($ns && !preg_match('#^namespace #ms', $content))
+                        if ($ns && !preg_match('#\bnamespace [A-Z]#ms', $content))
                             $content = "namespace $ns;\n\n" . $content;
                         if (count($ret))
                             $content = '<'. "?php\n" . $content; 
@@ -471,7 +477,7 @@ class TokenStream
         }
         
         $content = $this->getFileContent($prevStop);
-        if ($ns && !preg_match('#^namespace #ms', $content))
+        if ($ns && !preg_match('#\bnamespace [A-Z]#ms', $content))
             $content = "namespace $ns;\n\n" . $content;
         if (count($ret))
             $content = '<'. "?php\n" . $content; 

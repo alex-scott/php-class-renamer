@@ -6,10 +6,21 @@ class FileProcessor
 {
     protected $actions = array();
     
+    protected $ignoreVariableClass = array();
+    
     function addAction(Action\AbstractAction $action, $pass = 0)
     {
         $this->actions[$pass][] = $action;
         return $action;
+    }
+    
+    function ignoreVariableClass($cl)
+    {
+        if (is_array($cl))
+            $this->ignoreVariableClass = array_merge($this->ignoreVariableClass, $cl);
+        else
+            $this->ignoreVariableClass[] = $cl;
+        return $this;
     }
     
     function addFile($inputFile, $outFile)
@@ -17,7 +28,7 @@ class FileProcessor
         $this->files[$inputFile] = array(
             'in' => $inputFile,
             'out' => $outFile,
-            'stream' => new TokenStream(file_get_contents($inputFile), $inputFile),
+            'stream' => new TokenStream(file_get_contents($inputFile), $inputFile, $this->ignoreVariableClass),
         );
     }
     

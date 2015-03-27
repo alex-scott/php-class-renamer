@@ -35,7 +35,6 @@ class MoveClassToNs extends AbstractAction
     function process(TokenStream $stream, $inputFn, $outputFn, $pass = 0)
     {
         $this->stream = $stream;
-        
         $it = $this->stream->findNextToken(Token::T_CLASS_NAME);
         if (!$it) return; // no class defs found
         $firstClass = $this->stream->getTokenByNumber($it)->getContent();
@@ -91,7 +90,6 @@ class MoveClassToNs extends AbstractAction
             }
             $it++;
         }
-        
     }
     
 }

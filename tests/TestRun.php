@@ -110,6 +110,7 @@ class Ee {}', $files['Aa/Bb/Ee.php']);
         $changer->moveExtends('Am_Table_WithData', '\\Am\\Orm\\');
 
         $tr = new FileProcessor();
+        $tr->ignoreVariableClass('$this->x');
         $tr->addAction(new Action\RenameClass($changer));
         $tr->addAction(new Action\RenameClassRefs($changer));
         $tr->addAction(new Action\MoveClassToNs($changer), 2);
