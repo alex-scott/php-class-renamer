@@ -59,8 +59,11 @@ class FileProcessor
     function storeFiles($outDir)
     {
         $errors = array();
-        foreach ($this->files as & $rec)
+        foreach ($this->files as $inputFn => & $rec)
         {
+//            if (preg_match('#\bRecord.php$#', $inputFn))
+//                print_r($rec['stream']->dumpTokens(1));
+//            
             $files = $rec['stream']->getFilesAndContent();
             foreach ($files as $fn => $content)
             {

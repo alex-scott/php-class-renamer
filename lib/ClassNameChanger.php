@@ -51,6 +51,11 @@ class ClassNameChanger
     {
         $this->moveExtends[$whatExtends] = array('targetNs' => $targetNs, 'exceptions' => $exceptions);
     }
+    
+    function addRename($from, $to)
+    {
+        $this->renames[$from] = $to;
+    }
     function replace($class, $extends = null)
     {
         $class = trim($class);
