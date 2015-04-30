@@ -26,6 +26,7 @@ class RenameClassRefs extends AbstractAction
                 case Token::T_STATIC_CALL:
                 case Token::T_CLASS_NEW:
                 case Token::T_FUNCTION_ARG:
+                case Token::T_INSTANCEOF_NAME:
                     $old = $token->getContent();
                     $new = $this->changer->replace ( $old);
                     if ($old != $new)

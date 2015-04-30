@@ -29,7 +29,7 @@ class Test_FileProcessor extends \PHPUnit_Framework_TestCase
         $this->assertEquals(file_get_contents(__DIR__ . '/output-1.txt'), $ts->dumpTokens());
         $this->assertEquals(6, $ts->findPrevToken(T_FUNCTION, 13));
         $this->assertEquals(null, $ts->findPrevToken(T_FUNCTION, 13, 1)); // limit works
-        $this->assertEquals(68, $ts->findPrevToken(T_WHITESPACE, 68, 1));
+        $this->assertEquals(72, $ts->findPrevToken(T_WHITESPACE, 72, 1));
     }
     
     function testStoreFiles()

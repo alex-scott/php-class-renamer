@@ -18,6 +18,7 @@ class Token implements \ArrayAccess
     const T_USE_NS = 10008;
     const T_USE_AS = 10009;
     const T_NS_NAME = 10010;
+    const T_INSTANCEOF_NAME = 10011;
     
     const T_LEFT_BRACKET = 10100; // (
     const T_RIGHT_BRACKET = 10101; // )

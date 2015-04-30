@@ -64,6 +64,7 @@ class TokenStream
                 case Token::T_USE_AS:
                 case Token::T_FUNCTION_ARG:
                 case Token::T_NS_NAME:
+                case Token::T_INSTANCE_OF;
                     echo $t->getName() . "=" . $t->getContent() . "=\n";
             }
         }
@@ -272,6 +273,7 @@ class TokenStream
             case T_NEW:
             case T_NAMESPACE:
             case T_FUNCTION:
+            case T_INSTANCEOF:
                 $this->setState($type, $content, $line);
                 break;
             case T_INTERFACE: // emulate T_CLASS
@@ -357,6 +359,32 @@ class TokenStream
     public function getTokens()
     {
         return $this->tokens;
+    }
+    
+    public function endT_INSTANCEOF()
+    {
+        $no_whitespace = true;
+        $name = '';
+        $start = null;
+        foreach ($this->tokensBefore as $i => $token)
+        {
+            if ($token->is(T_INSTANCEOF)) continue; // skip instanceof itself
+            if ($token->is(T_WHITESPACE) && $no_whitespace) // skip first whitespace
+            {
+                $no_whitespace = false;
+                continue;
+            }
+            if ($token->is(T_NS_SEPARATOR, T_STRING))
+            {
+                if (!$start) $start = $i;
+                $name .= $token->getContent();
+                $end = $i;
+                continue;
+            }
+            break;
+        }
+        if ($start && $end)
+            $this->replaceTokensToNewType($start, $end, Token::T_INSTANCEOF_NAME);
     }
     
     public function replaceTokens($offset, $length, array $replacement)
