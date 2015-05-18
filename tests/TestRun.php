@@ -129,4 +129,10 @@ class Ee {}', $files['Aa/Bb/Ee.php']);
         $this->assertEquals('Am/Orm/Record.php', $tr->getFileName($fn));
     }
     
+    function testParser3()
+    {
+        $fn = __DIR__ . '/input-3.phps';
+        $ts = new TokenStream(file_get_contents($fn), 'input-3.phps');
+        $this->assertEquals(file_get_contents(__DIR__ . '/output-3.txt'), $ts->dumpTokens());
+    }
 }

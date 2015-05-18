@@ -39,6 +39,7 @@ class TokenStream
                     case '}' : $tt = Token::T_RIGHT_BRACE; break;
                     case ';' : $tt = Token::T_SEMICOLON; break;
                     case ',' : $tt = Token::T_COMMA; break;
+                    case '=' : $tt = Token::T_EQUALS; break;
                     default: $tt = 0;
                 }
                 $t = array($tt, $t, $line);
@@ -202,6 +203,11 @@ class TokenStream
                     $this->setState (Token::T_FUNCTION_ARG, $content, $line);
                 };
                 break;
+            case Token::T_EQUALS:
+                if ($this->insideFunctionArgs && $this->state == Token::T_FUNCTION_ARG) {
+                    $this->setState (Token::T_EQUALS, $content, $line);
+                    break;
+                }
             case Token::T_SEMICOLON:
                 if ($this->state == T_NAMESPACE)
                 {

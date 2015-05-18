@@ -26,6 +26,8 @@ class Token implements \ArrayAccess
     const T_RIGHT_BRACE = 10103; // }
     const T_SEMICOLON = 10104; // ;
     const T_COMMA = 10105; // ,
+    const T_EQUALS = 10107;
+    
     const T_FUNCTION_ARG = 10106;
     
     function __construct($typeOrArr, $content = null, $line = null)

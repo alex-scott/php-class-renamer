@@ -51,9 +51,20 @@ class FileProcessor
         return $this->files[$inputFn]['stream']->getFileContent();
     }
     
+    function getFilenames()
+    {
+        return array_keys($this->files);
+    }
+    
     function getFilename($inputFn)
     {
         return $this->files[$inputFn]['stream']->getFilename();
+    }
+    
+    /** @return \PhpClassRenamer\TokenStream */
+    function getFileTokenStream($inputFn)
+    {
+        return $this->files[$inputFn]['stream'];
     }
     
     function storeFiles($outDir)
