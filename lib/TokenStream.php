@@ -239,6 +239,8 @@ class TokenStream
                 } elseif ($this->state == T_FUNCTION) {
                     $this->setState(Token::T_FUNCTION_ARG, $content, $line);
                     $this->insideFunctionArgs = true;
+                } elseif ($this->state == Token::T_AFTER_EXTENDS) {
+                    $this->setState(0, $content, $line);
                 }
                 break;
             case Token::T_RIGHT_BRACKET:
