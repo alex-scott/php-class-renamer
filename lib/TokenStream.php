@@ -264,7 +264,7 @@ class TokenStream
                     $this->setState(0, $content, $line);
                 } elseif ($this->state == T_EXTENDS) {
                     $type = Token::T_EXTENDS_NAME;
-                    $this->setState(0, $content, $line);
+                    $this->setState(Token::T_AFTER_EXTENDS, $content, $line);
                 } elseif ($this->state == T_AS) {
                     $type = Token::T_USE_AS;
                     $this->setState(0, $content, $line);
@@ -307,6 +307,54 @@ class TokenStream
         $this->output = '';
         $this->tokensBefore = array();
         $this->state = $type;
+    }
+    
+    protected function endT_AFTER_EXTENDS($type, $content, $line)
+    {
+        $state = 0;
+        $numbers = array();
+        $currentNumber = 0;
+        reset($this->tokensBefore);
+        while (list($i, $token) = each($this->tokensBefore))
+        {
+            /* @var $token Token */
+            switch ($state)
+            {
+                case 0:
+                    if ($token->is(Token::T_EXTENDS_NAME))
+                    {
+                        $state = 1; continue; // after already parsed interface name
+                    }
+                break;
+                case 1:
+                    if ($token->is(Token::T_COMMA))
+                    {
+                        $state = 2; continue; // after comma
+                    }
+                    break;
+                case 2:    
+                    if ($token->is(T_STRING, T_NS_SEPARATOR))
+                    {
+                        $state = 3;
+                        $numbers[$currentNumber][0] = $i;
+                        $numbers[$currentNumber][1] = $i;
+                        continue; // start collecting interface names
+                    }
+                    break;
+                case 3:    
+                    if (!$token->is(T_STRING, T_NS_SEPARATOR))
+                    {
+                        $state = 1; $currentNumber++; continue; 
+                    } else {
+                        $numbers[$currentNumber][1] = $i;
+                    }
+                    break;
+            }
+        }
+        foreach ($numbers as $nn)
+        {
+            $this->replaceTokensToNewType ($nn[0], $nn[1], Token::T_EXTENDS_NAME);
+        }
     }
     
     protected function endT_USE($type, $content, $line)

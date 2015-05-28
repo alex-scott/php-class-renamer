@@ -30,6 +30,8 @@ class Token implements \ArrayAccess
     
     const T_FUNCTION_ARG = 10106;
     
+    const T_AFTER_EXTENDS = 20000; // temporary state (parser state after first extends parsed
+    
     function __construct($typeOrArr, $content = null, $line = null)
     {
         if (is_array($typeOrArr) && $content === null && $line === null)
