@@ -362,6 +362,7 @@ class TokenStream
     protected function endT_USE($type, $content, $line)
     {
         reset($this->tokensBefore);
+        $start = null;
         while (list($k,$tok) = each($this->tokensBefore))
             if ($tok->is(T_STRING, T_NS_SEPARATOR)) 
             {
@@ -372,7 +373,8 @@ class TokenStream
             {
                 $end = $k;
             }
-        $this->replaceTokensToNewType($start, $end, Token::T_USE_NS);
+        if ($start !== null)
+            $this->replaceTokensToNewType($start, $end, Token::T_USE_NS);
     }
     
     protected function endT_FUNCTION_ARG($type, $content, $line)

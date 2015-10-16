@@ -17,9 +17,11 @@ class Am_Record
         throw new Exception;
     }
     
-    function run(array $xx)
+    function run(array $xx, $x = RecursiveIteratorIterator::SELF_FIRST)
     {
         $x = (new Am_Table_Xx);
+        DateTimeZone::__set_state(array());
+        parent::_set_state(array());
         return null;
     }
 }

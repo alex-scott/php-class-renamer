@@ -65,6 +65,7 @@ class MoveClassToNs extends AbstractAction
                 Token::T_CLASS_NAME, 
                 Token::T_CLASS_NEW, Token::T_EXTENDS_NAME,
                 Token::T_FUNCTION_ARG, Token::T_NS_NAME,
+                Token::T_STATIC_CALL,
                 ), $it))
         {
             $token = $this->stream->getTokenByNumber($it);
@@ -81,6 +82,7 @@ class MoveClassToNs extends AbstractAction
                         $token->setContent(substr($class, strlen($prefix)));
                     } elseif ($currentNs
                         && !$token->is(Token::T_CLASS_NAME)
+                        && ($class != 'parent')
                         && strpos($class, '\\')===false) {
                         { // we are in namespace, prefix all not-namespaced classes
                             $token->setContent('\\' . $class);
