@@ -48,7 +48,8 @@ class TokenStream
             //echo token_name($type) . "=$content=$line\n";
             $this->addToken(new Token($t));
         }
-        $this->setState(null, null, $t[2]);
+        if (!empty($t))
+            $this->setState(null, null, $t[2]);
     }
     
     public function dumpFoundClassTokens()
@@ -139,7 +140,7 @@ class TokenStream
         {
             $token = $it->current();
             $i = $it->key();
-            if ($token->is($types))
+            if ($token && $token->is($types))
                 return $i;
             $it->next();
         } while ($it->valid());

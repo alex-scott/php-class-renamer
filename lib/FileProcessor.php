@@ -5,8 +5,21 @@ namespace PhpClassRenamer;
 class FileProcessor
 {
     protected $actions = array();
+    protected $files = array();
     
     protected $ignoreVariableClass = array();
+    
+    function cleanActions()
+    {
+        $this->actions = array();
+        return $this;
+    }
+    
+    function cleanFiles()
+    {
+        $this->files = array();
+        return $this;
+    }
     
     function addAction(Action\AbstractAction $action, $pass = 0)
     {
@@ -90,6 +103,25 @@ class FileProcessor
             }
         }
         return $errors;
+    }
+    
+    function storeFilesWithoutRename($outDir)
+    {
+        $errors = array();
+        foreach ($this->files as $inputFn => & $rec)
+        {
+            $content = $rec['stream']->getFileContent();
+            $fn = $rec['out'];
+            $dir = dirname($fn);
+            if (!file_exists($dir)) 
+                mkdir($dir, 0755, true);
+            file_put_contents($fn, $content);
+            $output = $exit = null;
+            exec("/usr/bin/php -l " . escapeshellarg($fn), $output, $exit);
+            if ($exit)
+                $errors[$fn] = $output;
+        }
+        return $errors;        
     }
     
     function processString($inputSource, $filename, $outFile)
