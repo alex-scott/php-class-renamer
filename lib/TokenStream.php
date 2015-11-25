@@ -206,7 +206,8 @@ class TokenStream
         } else {
             if (is_callable($this->warningHandler))
                 call_user_func($this->warningHandler,
-                    "NEW class creation for variable at $line : {$this->filename} [".$this->outputBefore."]\n", $this->filename, $line);
+                    "NEW class creation for variable at $line : {$this->filename} [".$this->outputBefore."]\n", 
+                        $this->filename, $line, trim($this->outputBefore));
         }
     }
         
