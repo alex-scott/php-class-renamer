@@ -22,9 +22,9 @@ class FixStringClassNames extends AbstractAction
         $this->ns = null;
         $replaced = $this->changer->getRenames();
         $this->inputFn = $inputFn;
-        $newContent = null;
         foreach ($this->stream->getTokens() as $i => $token)
         {
+            $newContent = null;
             switch ($token->getType())
             {
                 case Token::T_NS_NAME:

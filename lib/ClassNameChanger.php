@@ -102,7 +102,9 @@ class ClassNameChanger
         $cancel = false;
         foreach ($this->callbacks as $callback)
         {
-            $callback($orig, $class, $cancel);
+            $ret = $callback($orig, $class, $extends, $cancel);
+            if ($ret) 
+                $class = $ret;
         }
         if (!$cancel)
             $this->renames[$orig] = $class;

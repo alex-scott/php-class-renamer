@@ -92,7 +92,7 @@ class FileProcessor
                     mkdir($dir, 0755, true);
                 file_put_contents($fn, $content);
                 $output = $exit = null;
-                exec("/usr/bin/php -l " . escapeshellarg($fn), $output, $exit);
+                exec("/usr/bin/php -l " . escapeshellarg($fn) . " 2>&1", $output, $exit);
                 if ($exit)
                     $errors[$fn] = $output;
             }

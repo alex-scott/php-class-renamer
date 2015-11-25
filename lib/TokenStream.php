@@ -299,6 +299,16 @@ class TokenStream
             case T_AS:
                 if (!$lastToken->is(Token::T_USE_AS) && $this->state != T_USE)
                     break;
+            case T_WHITESPACE:
+                if ($this->state == T_NEW && (count($this->tokensBefore)>1))
+                {
+                    // remove whitespace from tokens list
+                    //array_pop($this->tokensBefore);
+                    end($this->tokensBefore); 
+                    $this->checkForStringClassName(current($this->tokensBefore), $line);
+                    $this->setState(0, $content, $line);
+                }
+                break;
             case T_CLASS:
             case T_EXTENDS:
             case T_USE:
