@@ -169,6 +169,8 @@ class TokenStream
     
     protected function replaceTokensToNewType($start, $end, $newType)
     {
+        if ($start > $end)
+            throw new \Exception("Error in replaceTokensToNewType - enmpty set [$start=$end=$newType]\n");
         for ($i=$start;$i<=$end;$i++)
             $toMerge[] = $this->tokens[$i];
         array_splice($this->tokens, $start, $end-$start+1, 
@@ -176,6 +178,41 @@ class TokenStream
         );
     }
     
+    
+    protected function checkForStringClassName(Token $lastToken, $line)
+    {
+        if ($lastToken->is(T_STRING))
+        {
+            if ($lastToken->getContent() == 'self')
+                return;
+
+            $waitFor = T_STRING;
+            $start = $end = null;
+            foreach (array_reverse($this->tokensBefore, true) as $i => $token)
+            {
+                if ($start === null) $start = $i;
+                if ($end === null) $end = $i;
+                if ($token->is($waitFor))
+                    $start = $i;
+                else {
+                    if ($token->is(T_WHITESPACE) || ($token->is(T_STRING) && preg_match('/\s+$/', $t->getContent())))
+                        break; // yes, it was classname we seek for
+                    else
+                        return; // no that is not the classname, there is something but space before it!
+                }
+                $waitFor = $waitFor == T_NS_SEPARATOR ? T_STRING : T_NS_SEPARATOR;
+            }
+            $d=debug_backtrace(); $d=$d[0];
+            $this->replaceTokensToNewType($start, $end, Token::T_CLASS_NEW);
+        } else {
+            if (!in_array(trim($this->outputBefore), $this->ignoreVariableClass))
+            {
+                trigger_error("NEW class creation for variable at $line : {$this->filename} [".$this->outputBefore."]\n",
+                    E_USER_NOTICE);
+            }
+        }
+    }
+        
     protected function addToken(Token $token)
     {
         $type = $token->getType();
@@ -194,6 +231,7 @@ class TokenStream
             } while (($lastToken->getType() == T_WHITESPACE));
         }
         // here we set lastToken to last non-whitespace token
+        
         switch ($type)
         {
             case T_DOUBLE_COLON:
@@ -203,6 +241,11 @@ class TokenStream
                 if ($this->insideFunctionArgs) {
                     $this->setState (Token::T_FUNCTION_ARG, $content, $line);
                 };
+                if ($this->state == T_NEW)
+                {
+                    $this->checkForStringClassName($lastToken, $line);
+                    $this->setState(0, $content, $line);
+                }
                 break;
             case Token::T_EQUALS:
                 if ($this->insideFunctionArgs && $this->state == Token::T_FUNCTION_ARG) {
@@ -214,26 +257,14 @@ class TokenStream
                 {
                     $this->setState(0, $content, $line);
                 } elseif ($this->state == T_NEW) {
-                    if ($lastToken->is(T_STRING) && trim($lastToken->getContent()) == trim($this->outputBefore)) {
-                        if ($lastToken->getContent() != 'self')
-                            $lastToken->setType(Token::T_CLASS_NEW);
-                    } else {
-                        if (!in_array(trim($this->outputBefore), $this->ignoreVariableClass))
-                            echo "NEW class creation for variable at $line : {$this->filename} [".$this->outputBefore."]\n";
-                    }
+                    $this->checkForStringClassName($lastToken, $line);
                     $this->setState(0, $content, $line);
                 }
                 break;
             case Token::T_LEFT_BRACKET:
                 if ($this->state == T_NEW)
                 {
-                    if ($lastToken->is(T_STRING) && trim($lastToken->getContent()) == trim($this->outputBefore)) {
-                        if ($lastToken->getContent() != 'self')
-                            $lastToken->setType(Token::T_CLASS_NEW);
-                    } else {
-                        if (!in_array(trim($this->outputBefore), $this->ignoreVariableClass))
-                            echo "NEW class creation for variable at $line : {$this->filename}[".$this->outputBefore."]\n";
-                    }
+                    $this->checkForStringClassName($lastToken, $line);
                     $this->setState(0, $content, $line);
                 } elseif ($this->state == T_USE) {
                     $this->setState(0, $content, $line);
@@ -250,13 +281,7 @@ class TokenStream
                 {
                     $this->setState(0, $content, $line);
                 } elseif ($this->state == T_NEW) {
-                    if ($lastToken->is(T_STRING) && trim($lastToken->getContent()) == trim($this->outputBefore)) {
-                        if ($lastToken->getContent() != 'self')
-                            $lastToken->setType(Token::T_CLASS_NEW);
-                    } else {
-                        if (!in_array(trim($this->outputBefore), $this->ignoreVariableClass))
-                            echo "NEW class creation for variable at $line : {$this->filename}[".$this->outputBefore."]\n";
-                    }
+                    $this->checkForStringClassName($lastToken, $line);
                     $this->setState(0, $content, $line);
                 }
                 break;
