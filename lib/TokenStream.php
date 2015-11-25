@@ -14,6 +14,7 @@ class TokenStream
     protected $filename;
     
     protected $ignoreVariableClass = array();
+    protected $warningHandler = null;
     
     function __construct($source, $filename, $ignoreVariableClass = array())
     {
@@ -207,8 +208,9 @@ class TokenStream
         } else {
             if (!in_array(trim($this->outputBefore), $this->ignoreVariableClass))
             {
-                trigger_error("NEW class creation for variable at $line : {$this->filename} [".$this->outputBefore."]\n",
-                    E_USER_NOTICE);
+                if ($this->warningHandler)
+                    call_user_func($this->warningHandler,
+                        "NEW class creation for variable at $line : {$this->filename} [".$this->outputBefore."]\n", $file, $line);
             }
         }
     }
@@ -596,7 +598,12 @@ class TokenStream
         $ret[ $this->getFilenameForClass($class, $ns) ] = $content;
         return $ret;
     }
+ 
     
+    function setWarningHandler(callable $func)
+    {
+        $this->warningHandler = $func;
+    }
 }
 
 

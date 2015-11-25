@@ -138,21 +138,20 @@ class Ee {}', $files['Aa/Bb/Ee.php']);
     
     function testWarnings4()
     {
-        //\PHPUnit_Framework_Error_Notice::$enabled = FALSE;
-        set_error_handler(function($errNo, $errMsg, $file, $line){
+        $fn = __DIR__ . '/input-4.phps';
+        $ts = new TokenStream(file_get_contents($fn), 'input-4.phps');
+        $ts->setWarningHandler(function($err, $file, $line) {
             $expected = [
                 'NEW class creation for variable at 5 : input-4.phps [ $className]',
                 'NEW class creation for variable at 7 : input-4.phps [ $className]',
             ];
             return;
             foreach ($expected as $exp)
-                if (stripos($errMsg, $exp) === 0)
+                if (stripos($err, $exp) === 0)
                     return; // expected warning
                 
-            throw new \Exception("Unexpected warning [$file , line $line]: " . $errMsg);
-        }, E_USER_NOTICE);
-        $fn = __DIR__ . '/input-4.phps';
-        $ts = new TokenStream(file_get_contents($fn), 'input-4.phps');
+            throw new \Exception("Unexpected warning [$file , line $line]: " . $err);
+        });
         $this->assertEquals(file_get_contents(__DIR__ . '/output-4.txt'), $ts->dumpTokens());
     }
 }
