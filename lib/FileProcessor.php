@@ -6,8 +6,12 @@ class FileProcessor
 {
     protected $actions = array();
     protected $files = array();
+    protected $warningHandler;
     
-    protected $ignoreVariableClass = array();
+    function setWarningHandler(callable $func)
+    {
+        $this->warningHandler = $func;
+    }
     
     function cleanActions()
     {
@@ -27,21 +31,12 @@ class FileProcessor
         return $action;
     }
     
-    function ignoreVariableClass($cl)
-    {
-        if (is_array($cl))
-            $this->ignoreVariableClass = array_merge($this->ignoreVariableClass, $cl);
-        else
-            $this->ignoreVariableClass[] = $cl;
-        return $this;
-    }
-    
     function addFile($inputFile, $outFile)
     {
         $this->files[$inputFile] = array(
             'in' => $inputFile,
             'out' => $outFile,
-            'stream' => new TokenStream(file_get_contents($inputFile), $inputFile, $this->ignoreVariableClass),
+            'stream' => new TokenStream(file_get_contents($inputFile), $inputFile, $this->warningHandler),
         );
     }
     

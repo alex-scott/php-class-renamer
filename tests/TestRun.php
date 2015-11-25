@@ -110,7 +110,6 @@ class Ee {}', $files['Aa/Bb/Ee.php']);
         $changer->moveExtends('Am_Table_WithData', '\\Am\\Orm\\');
 
         $tr = new FileProcessor();
-        $tr->ignoreVariableClass('$this->x');
         $tr->addAction(new Action\RenameClass($changer));
         $tr->addAction(new Action\RenameClassRefs($changer));
         $tr->addAction(new Action\MoveClassToNs($changer), 2);
@@ -139,19 +138,12 @@ class Ee {}', $files['Aa/Bb/Ee.php']);
     function testWarnings4()
     {
         $fn = __DIR__ . '/input-4.phps';
-        $ts = new TokenStream(file_get_contents($fn), 'input-4.phps');
-        $ts->setWarningHandler(function($err, $file, $line) {
-            $expected = [
-                'NEW class creation for variable at 5 : input-4.phps [ $className]',
-                'NEW class creation for variable at 7 : input-4.phps [ $className]',
-            ];
-            return;
-            foreach ($expected as $exp)
-                if (stripos($err, $exp) === 0)
-                    return; // expected warning
-                
-            throw new \Exception("Unexpected warning [$file , line $line]: " . $err);
+        $linesExpected = [5,7,9];
+        $linesFound = [];
+        $ts = new TokenStream(file_get_contents($fn), 'input-4.phps', function($err, $file, $line) use (& $linesFound) {
+            $linesFound[] = $line;
         });
         $this->assertEquals(file_get_contents(__DIR__ . '/output-4.txt'), $ts->dumpTokens());
+        $this->assertEquals($linesExpected, $linesFound);
     }
 }

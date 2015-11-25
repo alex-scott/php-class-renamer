@@ -6,6 +6,6 @@ $x = new $className;
 
 $y = new $className;
 
-$z = array( $className, 'xx' );
+$z = array( new $className, 'xx' );
 
 array(new Html, 'xxx');

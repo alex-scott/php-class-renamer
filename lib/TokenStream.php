@@ -13,14 +13,13 @@ class TokenStream
     protected $constants = array();
     protected $filename;
     
-    protected $ignoreVariableClass = array();
     protected $warningHandler = null;
     
-    function __construct($source, $filename, $ignoreVariableClass = array())
+    function __construct($source, $filename, $warningHandler = null)
     {
         $this->source = $source;
         $this->filename = $filename;
-        $this->ignoreVariableClass = $ignoreVariableClass;
+        $this->warningHandler = $warningHandler;
         $this->tokenize();
     }
 
@@ -203,15 +202,11 @@ class TokenStream
                 }
                 $waitFor = $waitFor == T_NS_SEPARATOR ? T_STRING : T_NS_SEPARATOR;
             }
-            $d=debug_backtrace(); $d=$d[0];
             $this->replaceTokensToNewType($start, $end, Token::T_CLASS_NEW);
         } else {
-            if (!in_array(trim($this->outputBefore), $this->ignoreVariableClass))
-            {
-                if ($this->warningHandler)
-                    call_user_func($this->warningHandler,
-                        "NEW class creation for variable at $line : {$this->filename} [".$this->outputBefore."]\n", $file, $line);
-            }
+            if (is_callable($this->warningHandler))
+                call_user_func($this->warningHandler,
+                    "NEW class creation for variable at $line : {$this->filename} [".$this->outputBefore."]\n", $this->filename, $line);
         }
     }
         
@@ -599,11 +594,6 @@ class TokenStream
         return $ret;
     }
  
-    
-    function setWarningHandler(callable $func)
-    {
-        $this->warningHandler = $func;
-    }
 }
 
 
