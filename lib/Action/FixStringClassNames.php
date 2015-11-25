@@ -22,6 +22,7 @@ class FixStringClassNames extends AbstractAction
         $this->ns = null;
         $replaced = $this->changer->getRenames();
         $this->inputFn = $inputFn;
+        $newContent = null;
         foreach ($this->stream->getTokens() as $i => $token)
         {
             switch ($token->getType())
@@ -37,16 +38,19 @@ class FixStringClassNames extends AbstractAction
                     if (!empty($replaced[$s]))
                     {
                         $s = str_replace('\\', '\\\\', $replaced[$s]);
-                        $token->setContent($ss[0] . $s . substr($ss, -1, 1));
+                        $newContent = $ss[0] . $s . substr($ss, -1, 1);
                     } elseif (!empty($this->staticRpl[$s])) {
-                        $token->setContent($ss[0] . $s . substr($ss, -1, 1));
+                        $newContent = $ss[0] . $s . substr($ss, -1, 1);
                     } elseif ($s = preg_replace_callback(
                             $xx = '#^('. implode('|', $this->rpl) .')[A-Z][A-Za-z0-9_]+#', 
                             array($this, '_rpl'), $s, -1, $count))
                     {
                         if ($count)
-                            $token->setContent($ss[0] . $s . substr($ss, -1, 1));
+                            $newContent = $ss[0] . $s . substr($ss, -1, 1);
                     }
+                    if ($newContent)
+                        if ($this->runCallbacks($token, $i, $token->getContent(), $newContent, $stream))
+                            $token->setContent($newContent);
                     break;
             }
         }

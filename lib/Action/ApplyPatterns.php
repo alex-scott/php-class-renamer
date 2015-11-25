@@ -31,8 +31,9 @@ class ApplyPatterns extends AbstractAction
                         $s1 = preg_replace($p, $r[0], $s);
                         if ($s1 != $s)
                         {
+                            if ($this->runCallbacks($token, $i, $token->getContent(), $s1, $stream))
+                                $token->setContent($s1);
                             //echo "replaced=$s=$s1={$prev->getContent()}={$prev->tokenName($prev->getType())}=$inputFn\n";
-                            $token->setContent($s1);
                         }
                     }
                     break;
