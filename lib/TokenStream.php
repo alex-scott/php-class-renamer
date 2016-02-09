@@ -126,24 +126,13 @@ class TokenStream
      */
     public function findNextToken($types, $start=0)
     {
-        $it = new \ArrayIterator($this->tokens);
-        if ($start)
+        $pos = 0;
+        foreach ($this->tokens as $k => $token)
         {
-            try {
-                $it->seek($start);
-            } catch (\OutOfBoundsException $e) {
-                return;
-                //throw new \Exception("Cannot seek to $start");
-            }
-        }
-        do 
-        {
-            $token = $it->current();
-            $i = $it->key();
+            if ($start > $pos++) continue; // skip to $pos
             if ($token && $token->is($types))
-                return $i;
-            $it->next();
-        } while ($it->valid());
+                return $k;
+        }
     }
     
     public function findPrevToken($types, $start=null, $limit=-1)
