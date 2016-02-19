@@ -22,6 +22,7 @@ class FixStringClassNames extends AbstractAction
         $this->ns = null;
         $replaced = $this->changer->getRenames();
         $this->inputFn = $inputFn;
+        $this->ptokens = [];
         foreach ($this->stream->getTokens() as $i => $token)
         {
             $newContent = null;
@@ -35,10 +36,19 @@ class FixStringClassNames extends AbstractAction
                     $s = substr($ss, 1, -1);
                     $count = 0; $xx = 0;
                     $this->line = $token->getLine();
+                    $skip = false;
                     if (!empty($replaced[$s]))
                     {
-                        $s = str_replace('\\', '\\\\', $replaced[$s]);
-                        $newContent = $ss[0] . $s . substr($ss, -1, 1);
+                        foreach ($this->ptokens as $ptoken)
+                        {
+                            if ($ptoken->getType() == T_STRING && preg_match('#___$#', $ptoken->getContent())) // amember-specific
+                                $skip = true; // this classname string is translated so we should not namespace it
+                        }
+                        if (!$skip)
+                        {
+                            $s = str_replace('\\', '\\\\', $replaced[$s]);
+                            $newContent = $ss[0] . $s . substr($ss, -1, 1);
+                        }
                     } elseif (!empty($this->staticRpl[$s])) {
                         $newContent = $ss[0] . $s . substr($ss, -1, 1);
                     } elseif ($s = preg_replace_callback(
@@ -53,6 +63,9 @@ class FixStringClassNames extends AbstractAction
                             $token->setContent($newContent);
                     break;
             }
+            if (count($this->ptokens)>5)
+                array_shift($this->ptokens);
+            array_push($this->ptokens, $token);
         }
     }
     
@@ -71,7 +84,6 @@ class FixStringClassNames extends AbstractAction
     function _rpl($matches)
     {
         $class = $matches[0];
-        
         foreach ($this->changer->getRenames() as $k => $v)
         {
             if (strpos($k, $class) === 0)
