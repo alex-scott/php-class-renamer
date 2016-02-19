@@ -75,7 +75,7 @@ class FileProcessor
         return $this->files[$inputFn]['stream'];
     }
     
-    function storeFiles($outDir)
+    function storeFiles($outDir, $verbose = false)
     {
         $errors = array();
         foreach ($this->files as $inputFn => & $rec)
@@ -90,6 +90,8 @@ class FileProcessor
                 $dir = dirname($fn);
                 if (!file_exists($dir)) 
                     mkdir($dir, 0755, true);
+                if ($verbose)
+                    echo "Storing $fn\n";
                 file_put_contents($fn, $content);
                 $output = $exit = null;
                 exec("/usr/bin/php -l " . escapeshellarg($fn) . " 2>&1", $output, $exit);
