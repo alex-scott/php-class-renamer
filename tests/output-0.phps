@@ -36,6 +36,11 @@ class Xx { }
 namespace Am\Orm\Record;
 class Xx extends \Am\Orm\Record
 {
+    public function __construct(array $defaults = array(),
+                \Am\Table\Xx $request = null)
+    {
+        
+    }
     /**
      * @param int|\Am\Orm\Record $x
      * @param \Am\Grid

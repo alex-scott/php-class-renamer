@@ -121,6 +121,8 @@ class Ee {}', $files['Aa/Bb/Ee.php']);
         $tr->addFile($fn, 'xx');
         $tr->addFile(__DIR__ . '/input-1.phps', 'yy');
         $tr->process();
+        $fs = $tr->getFileTokenStream(__DIR__.'/input-0.phps');
+        print_r($fs->dumpTokens());
         $output = $tr->getFileContent($fn);
         
         //file_put_contents(__DIR__ . '/output-0.phps', $output);
