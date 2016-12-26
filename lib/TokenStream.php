@@ -218,7 +218,8 @@ class TokenStream
             } while (($lastToken->getType() == T_WHITESPACE));
         }
         // here we set lastToken to last non-whitespace token
-        
+        // echo "$line=".$token->tokenName($token->getType())."=".$token->getContent()."={$this->insideFunctionArgs}=".
+            $token->tokenName($this->state) . "\n";
         switch ($type)
         {
             case T_DOUBLE_COLON:
@@ -263,7 +264,16 @@ class TokenStream
                 }
                 break;
             case Token::T_RIGHT_BRACKET:
-                $this->insideFunctionArgs = false;
+                // handle array $default = array(), inside function args
+                if ($this->insideFunctionArgs && $this->tokensBefore)
+                {
+                    end($this->tokensBefore);
+                    $tt = current($this->tokensBefore);
+                    if ($tt->getType() != Token::T_LEFT_BRACKET)
+                        $this->insideFunctionArgs = false;
+                } else {
+                    $this->insideFunctionArgs = false;
+                }
                 if ($this->state == Token::T_FUNCTION_ARG)
                 {
                     $this->setState(0, $content, $line);

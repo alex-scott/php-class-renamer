@@ -122,7 +122,6 @@ class Ee {}', $files['Aa/Bb/Ee.php']);
         $tr->addFile(__DIR__ . '/input-1.phps', 'yy');
         $tr->process();
         $fs = $tr->getFileTokenStream(__DIR__.'/input-0.phps');
-        print_r($fs->dumpTokens());
         $output = $tr->getFileContent($fn);
         
         //file_put_contents(__DIR__ . '/output-0.phps', $output);
@@ -147,5 +146,12 @@ class Ee {}', $files['Aa/Bb/Ee.php']);
         });
         $this->assertEquals(file_get_contents(__DIR__ . '/output-4.txt'), $ts->dumpTokens());
         $this->assertEquals($linesExpected, $linesFound);
+    }
+    
+    function testDumpFunctionArgs()
+    {
+        $fn = __DIR__ . '/input-5.phps';
+        $ts = new TokenStream(file_get_contents($fn), 'input-5.phps');
+        $this->assertEquals(file_get_contents(__DIR__ . '/output-5.txt'), $ts->dumpTokens());
     }
 }

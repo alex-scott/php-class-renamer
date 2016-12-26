@@ -33,7 +33,7 @@ class Am_Table_Xx { }
 class Am_Record_Xx extends Am_Record
 {
     public function __construct(array $defaults = array(),
-                Am_Table_Xx $request = null)
+        Am_Table_Xx $request = null)
     {
         
     }
