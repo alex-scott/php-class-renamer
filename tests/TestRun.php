@@ -154,4 +154,11 @@ class Ee {}', $files['Aa/Bb/Ee.php']);
         $ts = new TokenStream(file_get_contents($fn), 'input-5.phps');
         $this->assertEquals(file_get_contents(__DIR__ . '/output-5.txt'), $ts->dumpTokens());
     }
+    
+    function testTryCatch()
+    {
+        $fn = __DIR__ . '/input-6.phps';
+        $ts = new TokenStream(file_get_contents($fn), 'input-6.phps');
+        $this->assertEquals(file_get_contents(__DIR__ . '/output-6.txt'), $ts->dumpTokens());
+    }
 }

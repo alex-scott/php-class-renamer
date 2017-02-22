@@ -249,7 +249,7 @@ class TokenStream
                     $this->setState(0, $content, $line);
                 }
                 break;
-            case Token::T_LEFT_BRACKET:
+            case Token::T_LEFT_BRACKET: // (
                 if ($this->state == T_NEW)
                 {
                     $this->checkForStringClassName($lastToken, $line);
@@ -263,7 +263,7 @@ class TokenStream
                     $this->setState(0, $content, $line);
                 }
                 break;
-            case Token::T_RIGHT_BRACKET:
+            case Token::T_RIGHT_BRACKET: // )
                 // handle array $default = array(), inside function args
                 if ($this->insideFunctionArgs && $this->tokensBefore)
                 {
@@ -281,6 +281,17 @@ class TokenStream
                     $this->checkForStringClassName($lastToken, $line);
                     $this->setState(0, $content, $line);
                 }
+                if ($this->state == T_CATCH)
+                {
+                    $this->setState(0, $content, $line);
+                }
+                break;
+            case Token::T_LEFT_BRACE:
+                if ($this->state == T_CATCH)
+                    $this->setState(0, $content, $line);
+                break;
+            case T_CATCH:
+                $this->setState(T_CATCH, '', $line);
                 break;
             case T_STRING:
                 if ($this->state == T_CLASS)
@@ -342,6 +353,32 @@ class TokenStream
         $this->output = '';
         $this->tokensBefore = array();
         $this->state = $type;
+    }
+    
+    protected function endT_CATCH($type, $content, $line)
+    {
+        reset($this->tokensBefore);
+        $state = 0;
+        while (list($i,$token) = each ($this->tokensBefore))
+        {
+            switch ($state)
+            {
+                case 0:
+                    if ($token->is(Token::T_LEFT_BRACKET))
+                    {
+                        $state = 1;
+                        break;
+                    }
+                case 1:
+                    if ($token->is(T_WHITESPACE))
+                        continue;
+                    if ($token->is(T_STRING))
+                    {
+                        $this->replaceTokensToNewType($i, $i, Token::T_CLASS_NEW);
+                        return; //game over, do not handle complex case yet
+                    }
+            }
+        }
     }
     
     protected function endT_AFTER_EXTENDS($type, $content, $line)
