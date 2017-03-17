@@ -48,15 +48,30 @@ class FileProcessor
             {
                 foreach ($actions as $action)
                 {
-                    $action->process($rec['stream'], $rec['in'], $rec['out'], $pass);
+                    if (!$action instanceof Action\ContentAction)
+                        $action->process($rec['stream'], $rec['in'], $rec['out'], $pass);
                 }
             }
         }
-    }    
+    }   
+    
+    function runContentActions($content, $fn = null)
+    {
+        foreach ($this->actions as $pass => $actions)
+            foreach ($actions as $action)
+            {
+                if ($action instanceof Action\ContentAction)
+                {
+                    $content = $action->processContent($content, $fn);
+                }
+            }
+        return $content;
+    }
     
     function getFileContent($inputFn)
     {
-        return $this->files[$inputFn]['stream']->getFileContent();
+        return $this->runContentActions($this->files[$inputFn]['stream']->getFileContent(),
+            $inputFn);
     }
     
     function getFilenames()
@@ -86,6 +101,8 @@ class FileProcessor
             $files = $rec['stream']->getFilesAndContent();
             foreach ($files as $fn => $content)
             {
+                $content = $this->runContentActions($content, $inputFn);
+                
                 $fn = $outDir . DIRECTORY_SEPARATOR . $fn;
                 $dir = dirname($fn);
                 if (!file_exists($dir)) 
@@ -108,6 +125,7 @@ class FileProcessor
         foreach ($this->files as $inputFn => & $rec)
         {
             $content = $rec['stream']->getFileContent();
+            $content = $this->runContentActions($content, $inputFn);
             $fn = $rec['out'];
             $dir = dirname($fn);
             if (!file_exists($dir)) 
@@ -123,6 +141,6 @@ class FileProcessor
     
     function processString($inputSource, $filename, $outFile)
     {
-        return $stream->getFileContent();
+        return $this->runContentActions($stream->getFileContent(), $filename);
     }
 }

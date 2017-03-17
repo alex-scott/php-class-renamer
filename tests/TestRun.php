@@ -161,4 +161,18 @@ class Ee {}', $files['Aa/Bb/Ee.php']);
         $ts = new TokenStream(file_get_contents($fn), 'input-6.phps');
         $this->assertEquals(file_get_contents(__DIR__ . '/output-6.txt'), $ts->dumpTokens());
     }
+    
+    function testOutputFilter()
+    {
+        $changer = new ClassNameChanger();
+        $tr = new FileProcessor();
+        $tr->addAction($action = new Action\ContentAction($changer));
+        $action->addRegex("#\bdefined\('AM_ADMIN'\)\s+&&\s+AM_ADMIN\b#", 'is_admin()');
+        
+        $fn = __DIR__ . '/input-7.phps';
+        $tr->addFile($fn, 'xx');
+        $tr->process();
+        $output = $tr->getFileContent($fn);
+        $this->assertEquals(trim(file_get_contents(__DIR__ . '/output-7.phps')), trim($output));
+    }
 }
