@@ -20,6 +20,9 @@ class ApplyPatterns extends AbstractAction
                     $s = $token->getContent();
                     foreach ($this->patterns as $p => $r)
                     {
+                        if ($r[3] !== null)
+                            if (preg_match($r[3], $outputFn))
+                                continue;
                         $prev = $stream->getTokenByNumber($i-1);
                         if ($prev->is($r[1]) || in_array($prev->getContent(), $r[2]))
                             continue; // exclude !
@@ -41,10 +44,10 @@ class ApplyPatterns extends AbstractAction
         }
     }
     
-    function addPattern($pattern, $replacement, $excludeTypes=[], $excludeContent=[])
+    function addPattern($pattern, $replacement, $excludeTypes=[], $excludeContent=[], $excludeFn = null)
     {
         $this->patterns[$pattern] = 
-            array($replacement, $excludeTypes, $excludeContent);
+            array($replacement, $excludeTypes, $excludeContent, $excludeFn);
         return $this;
     }
 }
