@@ -56,5 +56,8 @@ class Xx extends \Am\Orm\Record
 namespace Am\Orm;
 class Aa extends Table\Xx { }
 
+namespace Am;
+trait Tt { function a(){} }
+
 namespace Am\Oo\My;
-abstract class Grid implements \Am\Grid {}
+abstract class Grid implements \Am\Grid { use \Am\Tt; }
