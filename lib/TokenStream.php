@@ -13,6 +13,9 @@ class TokenStream
     protected $constants = array();
     protected $filename;
     
+    // ugly and dirty! 
+    protected $traits = [];
+    
     protected $warningHandler = null;
     
     function __construct($source, $filename, $warningHandler = null)
@@ -302,6 +305,7 @@ class TokenStream
                 } elseif ($this->state == T_TRAIT)
                 {
                     $type = Token::T_CLASS_NAME;
+                    $this->traits[$content] = 1;
                     $this->setState(0, $content, $line);
                 } elseif ($this->state == T_EXTENDS) {
                     $type = Token::T_EXTENDS_NAME;
@@ -645,6 +649,11 @@ class TokenStream
             $content = '<'. "?php\n" . $content; 
         $ret[ $this->getFilenameForClass($class, $ns) ] = $content;
         return $ret;
+    }
+    
+    function getTraits()
+    {
+        return array_keys($this->traits);
     }
  
 }

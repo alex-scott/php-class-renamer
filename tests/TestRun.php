@@ -116,6 +116,7 @@ class Ee {}', $files['Aa/Bb/Ee.php']);
         $tr->addAction(new Action\FixDocBlocks($changer), 3);
         $tr->addAction(new Action\FixStringClassNames($changer), 3)
             ->replaceStringClassStartingWith('Am_');
+        $tr->addAction(new Action\ReplaceUseTraits($changer), 3);
         
         $fn = __DIR__ . '/input-0.phps';
         $tr->addFile($fn, 'xx');
@@ -134,6 +135,8 @@ class Ee {}', $files['Aa/Bb/Ee.php']);
         $fn = __DIR__ . '/input-3.phps';
         $ts = new TokenStream(file_get_contents($fn), 'input-3.phps');
         $this->assertEquals(file_get_contents(__DIR__ . '/output-3.txt'), $ts->dumpTokens());
+        $this->assertEquals(['TraitMe'], $ts->getTraits());
+        
     }
     
     function testWarnings4()
