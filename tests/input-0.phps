@@ -51,4 +51,6 @@ class Am_Record_Xx extends Am_Record
 
 class Aa extends Am_Table_Xx { }
 
-abstract class Am_Oo_My_Grid implements Am_Grid {}
+trait Am_Tt { function a(){} }
+
+abstract class Am_Oo_My_Grid implements Am_Grid { use Am_Tt; }
