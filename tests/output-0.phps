@@ -36,6 +36,8 @@ class Xx { }
 namespace Am\Orm\Record;
 class Xx extends \Am\Orm\Record
 {
+    const XX=1,
+        YY=2;
     public function __construct(array $defaults = array(),
         \Am\Orm\Table\Xx $request = null)
     {

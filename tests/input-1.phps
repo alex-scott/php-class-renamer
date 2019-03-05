@@ -9,3 +9,8 @@ function(My_Class $x, \Xx\SecondClass $y, $a, array $b)
 }
 
 interface Oo {}
+
+class Zz {
+    const X=1,
+    Y=2;
+}

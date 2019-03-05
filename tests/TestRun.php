@@ -186,4 +186,5 @@ class Ee {}', $files['Aa/Bb/Ee.php']);
         $output = $tr->getFileContent($fn);
         $this->assertEquals(trim(file_get_contents(__DIR__ . '/output-7.phps')), trim($output));
     }
+
 }
