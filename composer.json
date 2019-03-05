@@ -10,11 +10,12 @@
     ],
     "minimum-stability": "dev",
     "require": {},
-    "require-dev" : {
+    "require-dev": {
+        "phpunit/phpunit": "^7"
     },
     "autoload": {
-	"psr-4" : {
-		"PhpClassRenamer\\" : "lib/"
-	}
+        "psr-4": {
+            "PhpClassRenamer\\": "lib/"
+        }
     }
 }
