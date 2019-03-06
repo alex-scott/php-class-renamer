@@ -372,9 +372,8 @@ class TokenStream
     
     protected function endT_CATCH($type, $content, $line)
     {
-        reset($this->tokensBefore);
         $state = 0;
-        while (list($i,$token) = each ($this->tokensBefore))
+        foreach ($this->tokensBefore as $i => & $token)
         {
             switch ($state)
             {
@@ -401,8 +400,7 @@ class TokenStream
         $state = 0;
         $numbers = array();
         $currentNumber = 0;
-        reset($this->tokensBefore);
-        while (list($i, $token) = each($this->tokensBefore))
+        foreach ($this->tokensBefore as $i => $token)
         {
             /* @var $token Token */
             switch ($state)
@@ -446,18 +444,19 @@ class TokenStream
     
     protected function endT_USE($type, $content, $line)
     {
-        reset($this->tokensBefore);
         $start = null;
-        while (list($k,$tok) = each($this->tokensBefore))
-            if ($tok->is(T_STRING, T_NS_SEPARATOR)) 
-            {
-                $end = $start = $k; break;
-            }
-        while (list($k,$tok) = each($this->tokensBefore))
+        foreach ($this->tokensBefore as $k => $tok)
+        {
             if ($tok->is(T_STRING, T_NS_SEPARATOR))
             {
-                $end = $k;
+                if ($start === null)
+                {
+                    $end = $start = $k;
+                } else {
+                    $end = $k;
+                }
             }
+        }
         if ($start !== null)
             $this->replaceTokensToNewType($start, $end, Token::T_USE_NS);
     }
