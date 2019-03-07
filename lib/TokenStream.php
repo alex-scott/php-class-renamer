@@ -642,7 +642,7 @@ class TokenStream
         }
         if (!$class)
         {
-            echo "Error: no class found in file {$this->filename}\n";
+            // echo "Error: no class found in file {$this->filename}\n";
             return array();
         }
         
