@@ -659,7 +659,14 @@ class TokenStream
     {
         return array_keys($this->traits);
     }
- 
+
+    function addError($msg, $file=null, $line=null, $subject=null)
+    {
+        if ($this->warningHandler)
+            call_user_func($this->warningHandler, $msg, $file, $line, $subject);
+        return $this;
+    }
+
 }
 
 

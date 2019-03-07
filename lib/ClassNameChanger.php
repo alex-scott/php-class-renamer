@@ -11,7 +11,8 @@ class ClassNameChanger
     protected $moveExtends = array();
     
     protected $renames = array();
-    
+
+    protected $errors = [];
     
     protected $callbacks = array();
     
