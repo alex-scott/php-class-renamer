@@ -7,6 +7,8 @@ abstract class Tt {
 namespace Aa\Cc;
 final abstract class Pp {}
 
+trait Ttt {}
+
 class Ww extends \Aa\Bb\Tt
 {
     

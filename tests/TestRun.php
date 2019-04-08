@@ -42,21 +42,18 @@ class Test_FileProcessor extends TestCase
     function testStoreFiles()
     {
         $exp = file_get_contents(__DIR__ . '/output-2.txt');
-        foreach (preg_split('/(==(.+?)==)\n/ms', $exp, -1, PREG_SPLIT_DELIM_CAPTURE) as $k => $split)
-        {
-            if ($k == 0) continue;
-            if (($k % 3) == 2)
-                $fn = $split;
-            if (($k % 3) == 0)
-                $expected[$fn] = $split;
-        }
-        
+        $filesExpected = json_decode($exp, true);
         $source = file_get_contents(__DIR__ . '/input-2.phps');
         
         $ts = new TokenStream($source, '2');
         $files = $ts->getFilesAndContent();
       //  print_r($files);
         //$this->assertEquals($expected, $files);
+        // file_put_contents(__DIR__ . '/output-2.txt', json_encode($files, JSON_PRETTY_PRINT));
+
+        $this->assertEquals(array_keys($filesExpected), array_keys($files));
+        $this->assertEquals($filesExpected, $files);
+
         $this->assertTrue(true);
     }
     

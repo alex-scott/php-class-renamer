@@ -1,21 +1,6 @@
-==Aa/Bb/Tt.php==
-<?php
-namespace Aa\BbBb;
-abstract class Tt {
-    function oo() {} 
-}
-
-==Aa/Cc/Pp.php==
-<?php 
-namespace Aa\Cc;
-final abstract class Pp {}
-
-
-==Aa/Cc/Ww.php==
-<?php 
-namespace Aa\Cc;
-class Ww extends \Aa\Bb\Tt
 {
-    
+    "Aa\/Bb\/Tt.php": "<?php\nnamespace Aa\\Bb;\nabstract class Tt {\n    function oo() {} \n}",
+    "Aa\/Cc\/Pp.php": "<?php\n\n\nnamespace Aa\\Cc;\nfinal abstract class Pp {}\n\ntrait Ttt {}\n\nclass Ww extends \\",
+    "Aa\/Cc\/Ttt.php": "<?php\n\nnamespace Aa\\Cc;\nntrait Ttt {}",
+    "Aa\/Cc\/Ww.php": "<?php\nnamespace Aa\\Cc;\n\n\n\nclass Ww extends \\Aa\\Bb\\Tt\n{\n    \n}\nfunction oo() { return '00'; }"
 }
-function oo() { return '00'; }
