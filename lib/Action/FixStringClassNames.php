@@ -92,7 +92,8 @@ class FixStringClassNames extends AbstractAction
                 return str_replace('\\', '\\\\', substr($v, 0, -$lenDiff)); 
             }
         }
-        echo "Cannot find replacement for string class name [$class] in {$this->inputFn}:{$this->line}\n";
+        $this->stream->addError("Cannot find replacement for string class name [$class] in {$this->inputFn}:{$this->line}", 
+            $this->inputFn, $this->line, 'str-class-name-replacement');
         return $class;
     }
 }
