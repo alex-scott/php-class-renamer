@@ -46,9 +46,8 @@ class Test_FileProcessor extends TestCase
         $source = file_get_contents(__DIR__ . '/input-2.phps');
         
         $ts = new TokenStream($source, '2');
+        echo $ts->dumpTokens(true);
         $files = $ts->getFilesAndContent();
-      //  print_r($files);
-        //$this->assertEquals($expected, $files);
         // file_put_contents(__DIR__ . '/output-2.txt', json_encode($files, JSON_PRETTY_PRINT));
 
         $this->assertEquals(array_keys($filesExpected), array_keys($files));
