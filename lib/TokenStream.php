@@ -601,6 +601,7 @@ class TokenStream
             $prevTokens[$i] = $token;
             switch ($token->getType())
             {
+                case T_TRAIT:
                 case T_NAMESPACE:
                 case T_CLASS:
                 case T_INTERFACE:
@@ -610,7 +611,7 @@ class TokenStream
                             if ($tt->is([
                                 T_ABSTRACT, T_WHITESPACE, 
                                 T_FINAL, T_DOC_COMMENT, T_COMMENT,
-                                T_NAMESPACE, T_CLASS, T_INTERFACE]))
+                                T_NAMESPACE, T_CLASS, T_INTERFACE, T_TRAIT]))
                                 $first = $i;
                             else
                                 break;
