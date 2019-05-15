@@ -1,0 +1,4 @@
+{
+    "Am\/Trait\/Me.php": "<?php\nnamespace Am\\Trait;\ntrait Me {}",
+    "Am\/Test\/Me.php": "<?php\n\nnamespace Am\\Test;\nclass Me implements \\ArrayAccess, \\Xx\\Countable\n{\n    use \\Am\\Trait\\Me;\n    public function __construct($totalPages, $currentPage=null, $urlTemplate=null, $pageVar = \"p\", \\Am\\Request $request = null)\n    {\n    }\n}\n\n"
+}

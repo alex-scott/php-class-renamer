@@ -133,15 +133,41 @@ class Ee {}', $files['Aa/Bb/Ee.php']);
         $this->assertEquals('Am/Orm/Record.php', $tr->getFileName($fn));
     }
     
-    function testParser3()
+    function testParserTraits3()
     {
         $fn = __DIR__ . '/input-3.phps';
         $ts = new TokenStream(file_get_contents($fn), 'input-3.phps');
         $this->assertEquals(file_get_contents(__DIR__ . '/output-3.txt'), $ts->dumpTokens());
-        $this->assertEquals(['TraitMe'], $ts->getTraits());
+        $this->assertEquals(['Am_Trait_Me'], $ts->getTraits());
         
     }
-    
+
+    function testProcessTraits3()
+    {
+        $changer = new ClassNameChanger();
+        $changer->addToNs('Am_'); //convert all class names starting with Am_ to namespaces
+
+        $tr = new FileProcessor();
+        $tr->addAction(new Action\RenameClass($changer));
+        $tr->addAction(new Action\RenameClassRefs($changer));
+        $tr->addAction(new Action\MoveClassToNs($changer), 2);
+        $tr->addAction(new Action\FixDocBlocks($changer), 3);
+        $tr->addAction(new Action\FixStringClassNames($changer), 3)
+            ->replaceStringClassStartingWith('Am_');
+        $tr->addAction(new Action\ReplaceUseTraits($changer), 3);
+        $tr->addFile($fn = __DIR__ . '/input-3.phps', 'yy');
+        $files = $tr->process();
+
+        $ts = $tr->getFileTokenStream($fn);
+        $files = $ts->getFilesAndContent();
+        //file_put_contents(__DIR__ . '/output-3-pr.txt', json_encode($files, JSON_PRETTY_PRINT));
+        $filesExpected = json_decode(file_get_contents(__DIR__ . '/output-3-pr.txt'), true);
+        $this->assertEquals(array_keys($filesExpected), array_keys($files));
+        $this->assertEquals($filesExpected, $files);
+    }
+
+
+
     function testWarnings4()
     {
         $fn = __DIR__ . '/input-4.phps';
