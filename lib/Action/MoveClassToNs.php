@@ -31,7 +31,7 @@ class MoveClassToNs extends AbstractAction
         ));
         $this->currentNs = $ns;
     }
-    
+
     function process(TokenStream $stream, $inputFn, $outputFn, $pass = 0)
     {
         $this->stream = $stream;
@@ -45,30 +45,36 @@ class MoveClassToNs extends AbstractAction
         if ($ns)
             $this->insertNamespace($i, $ns);
         $it += 4;
-        /// found following classes
+        /// find following classes
         $l = 0;
-        while ($it = $this->stream->findNextToken(Token::T_CLASS_NAME, $it+4)) {
-            $class = $this->stream->getTokenByNumber($it)->getContent();
+        $tokenPos = $this->stream->findTokenPositions(Token::T_CLASS_NAME, $it+4);
+        $shift = 0;
+        foreach ($tokenPos as $it => $token)
+        {
+            $it = $it + $shift;
+            $class = $token->getContent();
             list($nns, $cl) = $this->parseNsAndClass($class);
             if ($nns && $nns != $ns)
             {
                 $ns = $nns;
+                $c1 = $this->stream->tokensCount();
                 $this->insertNamespace($it - 3, $ns);
-                $it+=4; //
+                $shift += $this->stream->tokensCount() - $c1;
             }
             if ($l++ > 1000) throw new \Exception("endless cycle?"); // endless cycle?
         };
+
         //// now as we inserted all namespaces, move on the file stream to simplify class names
         $it = 0;
         $currentNs = null;
-        while ($it = $this->stream->findNextToken(array(
-                Token::T_CLASS_NAME, 
+        $tokenPos = $this->stream->findTokenPositions([
+                Token::T_CLASS_NAME,
                 Token::T_CLASS_NEW, Token::T_EXTENDS_NAME,
                 Token::T_FUNCTION_ARG, Token::T_NS_NAME,
-                Token::T_STATIC_CALL,
-                ), $it))
+                Token::T_STATIC_CALL
+                ]);
+        foreach ($tokenPos as $it => $token)
         {
-            $token = $this->stream->getTokenByNumber($it);
             if ($token->is(Token::T_NS_NAME))
             {
                 $currentNs = $token->getContent();
@@ -90,7 +96,6 @@ class MoveClassToNs extends AbstractAction
                     }
                 }
             }
-            $it++;
         }
     }
     

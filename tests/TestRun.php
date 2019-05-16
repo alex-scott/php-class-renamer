@@ -167,6 +167,55 @@ class Ee {}', $files['Aa/Bb/Ee.php']);
     }
 
 
+    function XtestInternalIterators()
+    {
+        $a = [];
+        for ($i = 1; $i<20; $i+=2)
+            $a[$i] = $i*2;
+        //array:10 [
+        //  1 => 2
+        //  3 => 6
+        //  5 => 10
+        //  7 => 14
+        //  9 => 18
+        //  11 => 22
+        //  13 => 26
+        //  15 => 30
+        //  17 => 34
+        //  19 => 38
+        //]
+
+//        // now seek for element with value 22 from pos #9 (key=17)
+//        $it = new \ArrayIterator($a);
+//        $it->seek(5);
+//        dump($it->key(), $it->current());
+
+
+/*
+
+array(8) {
+  'PhpClassRenamer\Action\MoveClassToNs' =>
+  double(172.87785506248)
+  'PhpClassRenamer\Action\RenameClass' =>
+  double(22.398950099945)
+  'PhpClassRenamer\Action\ApplyPatterns' =>
+  double(2.483416557312)
+  'PhpClassRenamer\Action\RemoveRequireInclude' =>
+  double(1.3744351863861)
+  'PhpClassRenamer\Action\RenameClassRefs' =>
+  double(8.444483757019)
+  'PhpClassRenamer\Action\FixDocBlocks' =>
+  double(1.5599894523621)
+  'PhpClassRenamer\Action\FixStringClassNames' =>
+  double(2.9552595615387)
+  'PhpClassRenamer\Action\ReplaceUseTraits' =>
+  double(1.7917976379395)
+}
+
+
+        */
+
+    }
 
     function testWarnings4()
     {

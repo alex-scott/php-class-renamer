@@ -7,6 +7,7 @@ class FileProcessor
     protected $actions = array();
     protected $files = array();
     protected $warningHandler;
+    protected $stats = [], $contentStats=[];
     
     function setWarningHandler(callable $func)
     {
@@ -49,11 +50,17 @@ class FileProcessor
                 foreach ($actions as $action)
                 {
                     if (!$action instanceof Action\ContentAction)
+                    {
+                        $cl = get_class($action);
+                        $started = microtime(true);
                         $action->process($rec['stream'], $rec['in'], $rec['out'], $pass);
+                        if (empty($this->stats[$cl])) $this->stats[$cl] = 0;
+                        $this->stats[$cl] += microtime(true) - $started;
+                    }
                 }
             }
         }
-    }   
+    }
     
     function runContentActions($content, $fn = null)
     {
@@ -62,7 +69,11 @@ class FileProcessor
             {
                 if ($action instanceof Action\ContentAction)
                 {
+                    $cl = get_class($action);
+                    $started = microtime(true);
                     $content = $action->processContent($content, $fn);
+                    if (empty($this->contentStats[$cl])) $this->contentStats[$cl] = 0;
+                    $this->contentStats[$cl] += microtime(true) - $started;
                 }
             }
         return $content;
@@ -72,6 +83,14 @@ class FileProcessor
     {
         return $this->runContentActions($this->files[$inputFn]['stream']->getFileContent(),
             $inputFn);
+    }
+
+    function dumpStats()
+    {
+        echo "STATS:\n";
+        print_r($this->stats);
+        echo "CONTENT:\n";
+        print_r($this->contentStats);
     }
     
     function getFilenames()

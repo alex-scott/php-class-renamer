@@ -2,7 +2,9 @@
 
 namespace PhpClassRenamer;
 
-class TokenStream 
+use ArrayIterator;
+
+class TokenStream
 {
     protected $source;
     protected $tokens = array();
@@ -130,24 +132,60 @@ class TokenStream
      */
     public function findNextToken($types, $start=0)
     {
-        $pos = 0;
-        foreach ($this->tokens as $k => $token)
+        $it = new \ArrayIterator($this->tokens);
+        $it->rewind();
+        if ($start > 0) $it->seek($start);
+        while ($it->valid())
         {
-            if ($start > $pos++) continue; // skip to $pos
-            if ($token && $token->is($types))
-                return $k;
+            if ($it->current() && $it->current()->is($types))
+                return $it->key();
+            $it->next();
         }
+    }
+
+
+    function tokensCount()
+    {
+        return count($this->tokens);
+    }
+    /**
+     * @param $types
+     * @param int $start
+     * @return Token[] position => Token
+     */
+    public function findTokenPositions($types, $start = 0)
+    {
+        $ret = [];
+        foreach ($this->tokens as $i => $token)
+        {
+            if ($start-- > 0) continue;
+            if ($token && $token->is($types))
+            {
+                $ret[$i] = $token;
+            }
+        }
+        return $ret;
     }
     
     public function findPrevToken($types, $start=null, $limit=-1)
     {
-        foreach (array_reverse($this->tokens, true) as $i => $token)
+        $it = new \ArrayIterator($this->tokens);
+        if ($start !== null)
         {
-            if ($start !== null && ($i != $start)) continue;
-            $start = null; 
-            if ($token->is($types))
-                return $i;
-            if (--$limit == 0) return;
+            $pos = $start;
+            $it->seek($pos);
+            while ($it->key() > $start) $it->seek(--$pos);
+            while ($it->key() < $start) $it->seek(++$pos);
+        } else {
+            $pos = 0;
+            $it->seek($pos);
+        }
+        while ($it->valid())
+        {
+            if ($it->current() && $it->current()->is($types))
+                return $it->key();
+            if (!$pos || !$limit--) return;
+            $it->seek($pos--);
         }
     }
     
@@ -501,6 +539,11 @@ class TokenStream
     public function getTokens()
     {
         return $this->tokens;
+    }
+
+    function setTokens($tokens)
+    {
+        $this->tokens = $tokens;
     }
     
     public function endT_INSTANCEOF()

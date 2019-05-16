@@ -10,7 +10,10 @@ class RenameClass extends AbstractAction
     public function process(TokenStream $stream, $inputFn, $outputFn, $pass = 0)
     {
         $currentNs = null;
-        foreach ($stream->getTokens() as $k => & $token)
+
+        $tokenPos = $stream->findTokenPositions([Token::T_NS_NAME, Token::T_CLASS_NAME]);
+        $extendsPos = $stream->findTokenPositions([Token::T_EXTENDS_NAME]);
+        foreach ($tokenPos as $k => $token)
         {
             $ext = null;
             switch ($token->getType())
@@ -20,12 +23,13 @@ class RenameClass extends AbstractAction
                     break;
                     
                 case Token::T_CLASS_NAME:
-                    $i = $stream->findNextToken(Token::T_EXTENDS_NAME, $k+1);
-                    if ($i && (($i - $k) <= 6))
+                    $ext = null;
+                    foreach ($extendsPos as $ek => $extToken)
                     {
-                        $ext = $stream->getTokenByNumber($i)->getContent();
+                        if ($ek > $k && $ek < ($k+6))
+                            $ext = $extToken->getContent();
                     }
-                    
+
                     $new = $this->changer->replace(  $token->getContent() , $ext );
                     $token->setContent( $new );
                     break;
