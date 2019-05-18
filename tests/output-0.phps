@@ -13,8 +13,8 @@ class Record
     function __construct(Record\Xx $xx) {
         $b = new self;
         $c = new Record();
-        '\\Am\\Orm\\Table\\Xx';
-        $class = '\\Am\\Orm\\Table\\' . $cc;
+        'Am\\Orm\\Table\\Xx';
+        $class = 'Am\\Orm\\Table\\' . $cc;
         throw new \Exception;
     }
     
@@ -48,9 +48,9 @@ class Xx extends \Am\Orm\Record
      * @param \Am\Grid
      * @return Xx|null
      */
-    function run2(\Am\Orm\Record $r, array $x, $y, \Iterator $it)
+    function run2(\Am\Orm\Record $r, \Am\Orm\Record $r1, array $x, $y, \Iterator $it)
     {
-        "\\Am\\Orm\\Record\\Xx";
+        "Am\\Orm\\Record\\Xx";
         $c = new $this->x;
     }
 }

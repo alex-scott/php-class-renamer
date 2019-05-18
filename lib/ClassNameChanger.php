@@ -21,6 +21,13 @@ class ClassNameChanger
     {
         return $this->renames;
     }
+
+    public function getSortedRenames()
+    {
+        $r = $this->renames;
+        arsort($r);
+        return $r;
+    }
     
     function reset()
     {
@@ -63,6 +70,15 @@ class ClassNameChanger
     function replace($class, $extends = null)
     {
         $class = trim($class);
+
+        // if class starts with \ and hash underscore or known, we will handle it
+        if ($class[0] == '\\')
+        {
+            $_c = substr($class, 1);
+            if (isset($this->renames[$_c]))
+                return $this->renames[$_c];
+        }
+
         if (isset($this->renames[$class]))
             return $this->renames[$class];
         $orig = $class;

@@ -20,9 +20,12 @@ class FixStringClassNames extends AbstractAction
         $this->stream = $stream;
         $it = 0;
         $this->ns = null;
-        $replaced = $this->changer->getRenames();
         $this->inputFn = $inputFn;
         $this->ptokens = [];
+        $this->sortedRenames = $this->changer->getSortedRenames(); // in reverse order - longer first
+        $replaced = $this->sortedRenames;
+        foreach ($replaced as $k => & $newClass)
+            if ($newClass[0] == '\\') $newClass = substr($newClass, 1); // strip leading \\
         foreach ($this->stream->getTokens() as $i => $token)
         {
             $newContent = null;
@@ -37,27 +40,39 @@ class FixStringClassNames extends AbstractAction
                     $count = 0; $xx = 0;
                     $this->line = $token->getLine();
                     $skip = false;
+                    $ruleNum = 0;
                     if (!empty($replaced[$s]))
                     {
                         foreach ($this->ptokens as $ptoken)
                         {
-                            if ($ptoken->getType() == T_STRING && preg_match('#___$#', $ptoken->getContent())) // amember-specific
+                            if ($ptoken->getType() == T_STRING && preg_match('#(___|__hp|__hpe|__e)$#', $ptoken->getContent())) // amember-specific
                                 $skip = true; // this classname string is translated so we should not namespace it
+                            if ($ptoken->getType() == T_DOUBLE_ARROW && in_array($s, ['State', 'Country']))
+                                $skip = true; // do not replace State/Country to classname in arrays - that is commonly used
                         }
                         if (!$skip)
                         {
                             $s = str_replace('\\', '\\\\', $replaced[$s]);
                             $newContent = $ss[0] . $s . substr($ss, -1, 1);
+                            $ruleNum = 1;
                         }
                     } elseif (!empty($this->staticRpl[$s])) {
                         $newContent = $ss[0] . $s . substr($ss, -1, 1);
+                        $ruleNum = 2;
                     } elseif ($s = preg_replace_callback(
-                            $xx = '#^('. implode('|', $this->rpl) .')[A-Z][A-Za-z0-9_]+#', 
+                            $xx = '#^('. implode('|', $this->rpl) .')[A-Z][A-Za-z0-9_%]+$#',
                             array($this, '_rpl'), $s, -1, $count))
                     {
                         if ($count)
-                            $newContent = $ss[0] . $s . substr($ss, -1, 1);
+                        {
+                            $newContent = $ss[0].$s.substr($ss, -1, 1);
+                            $ruleNum = 3;
+                        }
                     }
+//                    if ($newContent)
+//                    {
+//                        echo "REPLSTR[$ruleNum]:\t" . $token->getContent() . " => " . $newContent . "\n";
+//                    }
                     if ($newContent)
                         if ($this->runCallbacks($token, $i, $token->getContent(), $newContent, $stream))
                             $token->setContent($newContent);
@@ -83,18 +98,50 @@ class FixStringClassNames extends AbstractAction
     
     function _rpl($matches)
     {
-        $class = $matches[0];
-        foreach ($this->changer->getRenames() as $k => $v)
+        $string = $matches[0];
+        foreach ($this->sortedRenames as $k => $v)
         {
-            if (strpos($k, $class) === 0)
+            if (strpos($k, $string) === 0)
             {
-                $lenDiff = strlen($k) - strlen($class);
-                return str_replace('\\', '\\\\', substr($v, 0, -$lenDiff)); 
+                $origV = $v;
+                if ($v[0] == '\\')
+                    $v = substr($v, 1); // in strings we do not need leading \ slash
+                if ($string != $k)
+                {
+//                    $v = substr($v, 0, strlen($string));
+//                    $lastChar = substr($string, -1);
+//                    if ($lastChar == '_') $lastChar = '\\';
+//                    if ($lastChar != substr($v, -1))
+//                    {
+//                        throw new \Exception( "ERROR IN STRING CLASS REPLACE: GOING TO REPLACE [$string] => [$v] but seems it is wrong!");
+//                    }
+                    // make replacement shorter same way as $string shorter than $k
+                    $lenDiff = strlen($k) - strlen($string);
+                    $v = substr($v, 0, - $lenDiff);
+
+                    if (!$this->classNameEqualsOrLastWordEquals($string, $v))
+                        throw new \Exception("Cannot handle string class replacement, calculated [$string] => [$v] but it looks wrong!\nPlease add FixStringClassNames->staticReplace() for it");
+                    //echo "COMPLEX STRRPL: string=[$string] k=[$k] origV=[$origV] [$string] => $v\n";
+                }
+                return str_replace('\\', '\\\\', $v);
+                //$lenDiff = strlen($k) - strlen($string);
+                //return str_replace('\\', '\\\\', substr($v, 0, -$lenDiff));
             }
         }
-        $this->stream->addError("Cannot find replacement for string class name [$class] in {$this->inputFn}:{$this->line}", 
-            $this->inputFn, $this->line, 'str-class-name-replacement');
-        return $class;
+        $this->stream->addError("Cannot find replacement for string string name [$string] in {$this->inputFn}:{$this->line}",
+            $this->inputFn, $this->line, 'str-string-name-replacement');
+        return $string;
+    }
+
+    function classNameEqualsOrLastWordEquals($c1, $c2)
+    {
+        [$c1, $c2] = preg_replace('#^\\\\#', '', [$c1, $c2]);
+        [$c1, $c2] = preg_replace('#\\\\#', '_', [$c1, $c2]);
+        $lw1 = array_filter(explode('_', $c1));
+        $lw2 = array_filter(explode('_', $c2));
+        $lww1 = array_pop($lw1);
+        $lww2 = array_pop($lw2);
+        return ($c1 === $c2) || ($lww1 === $lww2);
     }
 }
 

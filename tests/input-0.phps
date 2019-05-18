@@ -44,7 +44,7 @@ class Am_Record_Xx extends Am_Record
      * @param Am_Grid
      * @return Am_Record_Xx|null
      */
-    function run2(Am_Record $r, array $x, $y, Iterator $it)
+    function run2(Am_Record $r, \Am_Record $r1, array $x, $y, Iterator $it)
     {
         "Am_Record_Xx";
         $c = new $this->x;
